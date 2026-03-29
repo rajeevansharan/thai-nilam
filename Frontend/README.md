@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+# ThaiNilam | EDITION Digital Magazine
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ThaiNilam is a premium, minimalist digital magazine platform for high-end editorial content. It features a professional user experience, elegant aesthetics, and efficient management of digital editions.
 
-Currently, two official plugins are available:
+## 🚀 Project Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The "EDITION" platform provides a sophisticated interface for readers to browse, unlock, and read digital magazine issues. It features a complete frontend ecosystem including a public-facing magazine site and a robust administrative backend.
 
-## React Compiler
+## 🛠️ Technology Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React (with Vite for fast development)
+- **Styling**: Tailwind CSS (for utility-first, modern responsive design)
+- **Iconography**: Lucide React (for crisp, consistent vector icons)
+- **Typography**: Inter (Modern sans-serif) and Playfair Display (Elegant serif for editorial sections)
+- **Language**: TypeScript (for type-safe, maintainable code)
 
-## Expanding the ESLint configuration
+## ✨ Work Completed So Far
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+I have built a comprehensive frontend architecture that includes the following:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 📖 User Experience (Front Office)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Pixel-Perfect Login**: A sophisticated split-screen login page with mock authentication logic.
+- **Dynamic Home Page**: A dedicated landing page featuring a modern Hero section and a "Past Issues" catalog.
+- **Interactive Library**: A complete archive of magazine editions with advanced filtering by **Year** and **Month**.
+- **Professional Profile**: A user dashboard for account management, subscription status, and personal statistics.
+- **State-Based Routing**: A lightweight, efficient routing system in `App.tsx` that handles navigation without external dependencies.
+- **High-End Components**: Reusable `Header`, `Footer`, `IssueCard`, and `Hero` components with modern animations and hover effects.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### ⚙️ Administration (Back Office)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **Admin Portal**: A full-featured management dashboard with a sidebar-based layout.
+- **Issue Management**: A dedicated interface to upload new magazine editions (PDF) and cover artwork (Images) for specific months/years.
+- **User Management**: A high-performance data table for searching, reviewing, and managing user roles and status.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 🎨 Polishing & UI/UX Refinement
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Senior-Level CSS Optimizations**: Implemented global fixes for text carets (blinking cursors) to ensure a stable, app-like feel on static text.
+- **Horizontal Scroll Prevention**: Optimized layout containers to eliminate unwanted horizontal overflow.
+- **Consistent Branding**: Applied a uniform minimalist color palette and typography across all modular components.
+
+## 🔑 Mock Credentials for Testing
+
+To navigate the different portals, use the following demo accounts:
+
+| Role      | Email                | Password     | Destination  |
+| :-------- | :------------------- | :----------- | :----------- |
+| **User**  | `reader@edition.com` | `edition123` | Home Portal  |
+| **Admin** | `admin@edition.com`  | `admin123`   | Admin Portal |
+
+## 📁 Project Structure
+
+- `src/pages/`: Contains page-level components (Home, Library, Login, Admin, Profile).
+- `src/components/`: Reusable UI elements (Header, Footer, IssueCard, Hero).
+- `src/assets/`: Magazine cover artworks and visual assets.
+- `src/App.tsx`: Main entry point and application router.

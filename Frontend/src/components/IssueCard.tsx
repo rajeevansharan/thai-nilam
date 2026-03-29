@@ -1,0 +1,54 @@
+import { Bell, Lock } from 'lucide-react';
+
+interface IssueCardProps {
+  image: string;
+  month: string;
+  title: string;
+  description: string;
+  isUnlocked?: boolean;
+  price?: string;
+  isPurchased?: boolean;
+}
+
+const IssueCard: React.FC<IssueCardProps> = ({ image, month, title, description, isUnlocked = false, price, isPurchased = false }) => {
+  return (
+    <div className="flex flex-col group transition-all duration-300 transform hover:-translate-y-2 h-full bg-white rounded-2xl">
+      {/* Magazine cover visual */}
+      <div className={`relative aspect-[3/4] overflow-hidden rounded-xl shadow-lg border border-gray-100 ${isUnlocked ? 'ring-2 ring-emerald-500/20' : 'ring-1 ring-gray-200'}`}>
+        <img src={image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={title} />
+        
+        {/* Status badges */}
+        <div className="absolute top-4 right-4 flex space-x-2">
+          {isPurchased && (
+            <span className="px-3 py-1 bg-amber-400 text-[#0a0d16] text-[10px] uppercase font-bold tracking-wider rounded-full shadow-md flex items-center">
+              <Bell className="w-3 h-3 mr-1 fill-current" />
+              Purchased
+            </span>
+          )}
+          {!isUnlocked && !isPurchased && (
+            <span className="px-3 py-1 bg-black/70 text-white text-[10px] uppercase font-bold tracking-wider rounded-full backdrop-blur-md flex items-center">
+              <Lock className="w-3 h-3 mr-1" />
+              Locked
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6 text-left">
+        <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-400 mb-2">{month}</p>
+        <h3 className="text-2xl font-serif font-semibold text-gray-900 leading-tight mb-2 group-hover:text-amber-700 transition-colors">{title}</h3>
+        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed mb-6">{description}</p>
+        
+        <button className={`w-full py-3.5 px-6 rounded font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 
+          ${isUnlocked || isPurchased 
+            ? 'bg-[#0a0d16] text-white hover:bg-gray-800' 
+            : 'bg-amber-500 text-[#0a0d16] hover:bg-amber-600 hover:shadow-lg hover:shadow-amber-500/30'
+          }`}>
+          {isUnlocked || isPurchased ? 'Read Now' : `Unlock for ${price || '$4.99'}`}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default IssueCard;
