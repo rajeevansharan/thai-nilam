@@ -33,10 +33,33 @@ export const createIssue = async (req: Request, res: Response): Promise<void> =>
 
 export const getAllIssues = async (req: Request, res: Response): Promise<void> => {
   try {
+    const { month, year, userId } = req.query;
+    
+    const filter: any = {};
+    if (month && month !== 'All') {
+      filter.month = month as string;
+    }
+    if (year && year !== 'All') {
+      filter.year = year as string;
+    }
+
     const issues = await prisma.issue.findMany({
+      where: filter,
       orderBy: { createdAt: 'desc' },
+      include: {
+        purchases: userId ? {
+          where: { userId: userId as string }
+        } : false
+      }
     });
-    res.json(issues);
+
+    const formattedIssues = issues.map(issue => ({
+      ...issue,
+      isPurchased: issue.purchases ? issue.purchases.length > 0 : false,
+      purchases: undefined // remove the internal purchases array
+    }));
+
+    res.json(formattedIssues);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch issues' });
   }
