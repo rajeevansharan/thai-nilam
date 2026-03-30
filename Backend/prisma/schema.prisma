@@ -7,26 +7,67 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String     @id @default(uuid())
+  email     String     @unique
   password  String
   name      String
-  role      String   @default("USER")
-  isPremium Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      String     @default("USER")
+  isPremium Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  purchases Purchase[]
+  favorites Favorite[]
 }
 
 model Issue {
   id          String   @id @default(uuid())
-  title       String
+  title       String?
   description String
-  month       String
+  month       String   // e.g., 1-12 or 'January'
   year        String
   pdfUrl      String
-  imageUrl    String
+  imageUrl    String   // (coverImage equivalent)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  purchases   Purchase[]
+  favorites   Favorite[]
+}
+
+enum PurchaseStatus {
+  paid
+  failed
+  pending
+}
+
+model Purchase {
+  id              String         @id @default(uuid())
+  userId          String
+  magazineIssueId String
+  paidAt          DateTime?      
+  amount          Float
+  status          PurchaseStatus @default(pending)
+  
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  issue           Issue          @relation(fields: [magazineIssueId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, magazineIssueId])
+  @@index([userId])
+  @@index([magazineIssueId])
+}
+
+model Favorite {
+  id              String   @id @default(uuid())
+  userId          String
+  magazineIssueId String
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  issue           Issue    @relation(fields: [magazineIssueId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, magazineIssueId])
+  @@index([userId])
+  @@index([magazineIssueId])
 }

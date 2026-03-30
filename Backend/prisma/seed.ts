@@ -5,6 +5,12 @@ const prisma = new PrismaClient();
 async function main() {
   console.log(`Start seeding ...`);
 
+  // Cleanup existing data
+  await prisma.purchase.deleteMany();
+  await prisma.favorite.deleteMany();
+  await prisma.issue.deleteMany();
+  await prisma.user.deleteMany();
+
   // Create Users
   const user1 = await prisma.user.upsert({
     where: { email: 'admin@thainilam.com' },
@@ -56,6 +62,38 @@ async function main() {
   });
 
   console.log({ issue1, issue2 });
+
+  // Create Purchases
+  const purchase1 = await prisma.purchase.create({
+    data: {
+      userId: user2.id,
+      magazineIssueId: issue1.id,
+      amount: 4.99,
+      status: 'paid',
+      paidAt: new Date(),
+    },
+  });
+
+  const purchase2 = await prisma.purchase.create({
+    data: {
+      userId: user2.id,
+      magazineIssueId: issue2.id,
+      amount: 4.99,
+      status: 'pending',
+    },
+  });
+
+  console.log({ purchase1, purchase2 });
+
+  // Create Favorites
+  const favorite1 = await prisma.favorite.create({
+    data: {
+      userId: user2.id,
+      magazineIssueId: issue1.id,
+    },
+  });
+
+  console.log({ favorite1 });
 
   console.log(`Seeding finished.`);
 }

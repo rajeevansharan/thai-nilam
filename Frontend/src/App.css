@@ -13,7 +13,7 @@ h1, h2, h3, h4, p, span, div:not([contenteditable="true"]) {
   font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
   cursor: default;
   caret-color: transparent;
-  user-select: none; /* Prevents focus caret from showing on click */
+  user-select: text; /* Allow text to be copied while hiding focus caret */
 }
 
 a, button, [role="button"] {
