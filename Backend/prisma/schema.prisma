@@ -22,18 +22,26 @@ model User {
 }
 
 model Issue {
-  id          String   @id @default(uuid())
-  title       String?
-  description String
-  month       String   // e.g., 1-12 or 'January'
-  year        String
-  pdfUrl      String
-  imageUrl    String   // (coverImage equivalent)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(uuid())
+  title         String?
+  description   String
+  month         String   // e.g., 1-12 or 'January'
+  year          String
+  pdfUrl        String
+  imageUrl      String   // (coverImage equivalent)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  purchases   Purchase[]
-  favorites   Favorite[]
+  contentImages ContentImage[]
+  purchases     Purchase[]
+  favorites     Favorite[]
+}
+
+model ContentImage {
+  id      String @id @default(uuid())
+  url     String
+  issueId String
+  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
 }
 
 enum PurchaseStatus {

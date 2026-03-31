@@ -6,7 +6,8 @@ const router = Router();
 
 router.post('/', upload.fields([
   { name: 'pdf', maxCount: 1 },
-  { name: 'image', maxCount: 1 }
+  { name: 'image', maxCount: 1 },
+  { name: 'contentImages', maxCount: 5 }
 ]), createIssue);
 
 router.get('/', getAllIssues);

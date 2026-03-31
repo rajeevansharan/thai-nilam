@@ -12,9 +12,10 @@ import issue3 from '../assets/download (3).jpg';
 
 interface HomeProps {
   onNavigate?: (page: string) => void;
+  onUnlock?: (issue: any) => void;
 }
 
-const Home: React.FC<HomeProps> = ({ onNavigate }) => {
+const Home: React.FC<HomeProps> = ({ onNavigate, onUnlock }) => {
   return (
     <div className="min-h-screen bg-white">
       <Header activePage="home" onNavigate={onNavigate} />
@@ -63,6 +64,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               price="$4.99"
               isUnlocked={false}
               isPurchased={false}
+              onUnlock={onUnlock}
             />
           </div>
         </section>

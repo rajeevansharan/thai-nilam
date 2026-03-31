@@ -1,6 +1,7 @@
 import { Bell, Lock } from 'lucide-react';
 
 interface IssueCardProps {
+  id?: string;
   image: string;
   month: string;
   title: string;
@@ -8,9 +9,11 @@ interface IssueCardProps {
   isUnlocked?: boolean;
   price?: string;
   isPurchased?: boolean;
+  onUnlock?: (issue: any) => void;
+  contentImages?: { url: string }[];
 }
 
-const IssueCard: React.FC<IssueCardProps> = ({ image, month, title, description, isUnlocked = false, price, isPurchased = false }) => {
+const IssueCard: React.FC<IssueCardProps> = ({ id, image, month, title, description, isUnlocked = false, price, isPurchased = false, onUnlock, contentImages }) => {
   return (
     <div className="flex flex-col group transition-all duration-300 transform hover:-translate-y-2 h-full bg-white rounded-2xl">
       {/* Magazine cover visual */}
@@ -36,10 +39,16 @@ const IssueCard: React.FC<IssueCardProps> = ({ image, month, title, description,
 
       <div className="mt-6 text-left">
         <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-400 mb-2">{month}</p>
-        <h3 className="text-2xl font-serif font-semibold text-gray-900 leading-tight mb-2 group-hover:text-amber-700 transition-colors">{title}</h3>
-        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed mb-6">{description}</p>
+        <h3 className="text-2xl font-serif font-semibold text-gray-900 leading-tight mb-2 group-hover:text-amber-700 transition-colors uppercase">{title}</h3>
+        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed mb-6 italic">{description}</p>
         
-        <button className={`w-full py-3.5 px-6 rounded font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 
+        <button 
+          onClick={() => {
+            if (!(isUnlocked || isPurchased) && onUnlock) {
+              onUnlock({ id, image, month, title, description, price, contentImages });
+            }
+          }}
+          className={`w-full py-3.5 px-6 rounded font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 
           ${isUnlocked || isPurchased 
             ? 'bg-[#0a0d16] text-white hover:bg-gray-800' 
             : 'bg-amber-500 text-[#0a0d16] hover:bg-amber-600 hover:shadow-lg hover:shadow-amber-500/30'

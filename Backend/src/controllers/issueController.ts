@@ -8,6 +8,7 @@ export const createIssue = async (req: Request, res: Response): Promise<void> =>
 
     const pdfUrl = files['pdf'] ? files['pdf'][0].path : '';
     const imageUrl = files['image'] ? files['image'][0].path : '';
+    const contentImageFiles = files['contentImages'] || [];
 
     if (!pdfUrl || !imageUrl) {
       res.status(400).json({ error: 'PDF and Image are required' });
@@ -22,7 +23,15 @@ export const createIssue = async (req: Request, res: Response): Promise<void> =>
         year,
         pdfUrl,
         imageUrl,
+        contentImages: {
+          create: contentImageFiles.map(file => ({
+            url: file.path
+          }))
+        }
       },
+      include: {
+        contentImages: true
+      }
     });
 
     res.status(201).json(issue);
@@ -47,6 +56,7 @@ export const getAllIssues = async (req: Request, res: Response): Promise<void> =
       where: filter,
       orderBy: { createdAt: 'desc' },
       include: {
+        contentImages: true,
         purchases: userId ? {
           where: { userId: userId as string }
         } : false

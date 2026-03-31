@@ -8,9 +8,10 @@ import { getAllIssues } from "../services/issueService";
 interface LibraryProps {
   onNavigate?: (page: string) => void;
   user?: any;
+  onUnlock?: (issue: any) => void;
 }
 
-const Library: React.FC<LibraryProps> = ({ onNavigate, user }) => {
+const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString("en-US", { month: "long" });
   const currentYear = currentDate.getFullYear().toString();
@@ -135,6 +136,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user }) => {
             issues.map((issue) => (
               <IssueCard
                 key={issue.id}
+                id={issue.id}
                 image={getImageUrl(issue.imageUrl)}
                 month={`${issue.month} ${issue.year}`}
                 title={issue.title}
@@ -142,6 +144,8 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user }) => {
                 price="$4.99"
                 isPurchased={issue.isPurchased}
                 isUnlocked={issue.isPurchased || user?.role === "ADMIN"}
+                onUnlock={onUnlock}
+                contentImages={issue.contentImages}
               />
             ))
           )}

@@ -4,11 +4,13 @@ import Library from "./pages/Library";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
+import Payment from "./pages/Payment";
 import "./App.css";
 
 function App() {
   const [page, setPage] = useState("login");
   const [user, setUser] = useState<any>(null);
+  const [selectedIssue, setSelectedIssue] = useState<any>(null);
 
   const handleLogin = (userData: any) => {
     setUser(userData);
@@ -19,12 +21,17 @@ function App() {
     }
   };
 
+  const navigateToPayment = (issue: any) => {
+    setSelectedIssue(issue);
+    setPage("payment");
+  };
+
   if (page === "login") {
     return <Login onLogin={handleLogin} />;
   }
 
   if (page === "library") {
-    return <Library onNavigate={setPage} user={user} />;
+    return <Library onNavigate={setPage} user={user} onUnlock={navigateToPayment} />;
   }
 
   if (page === "profile") {
@@ -35,7 +42,11 @@ function App() {
     return <Admin onNavigate={setPage} />;
   }
 
-  return <Home onNavigate={setPage} />;
+  if (page === "payment") {
+    return <Payment onNavigate={setPage} issue={selectedIssue} user={user} />;
+  }
+
+  return <Home onNavigate={setPage} onUnlock={navigateToPayment} />;
 }
 
 export default App;
