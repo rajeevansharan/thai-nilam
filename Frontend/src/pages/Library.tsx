@@ -61,39 +61,39 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Header activePage="library" onNavigate={onNavigate} />
 
       <main className="max-w-7xl mx-auto px-8 py-16">
         {/* Title Section */}
         <div className="text-center mb-16">
-          <p className="text-[10px] uppercase font-bold tracking-[0.4em] text-gray-400 mb-4">
+          <p className="text-[10px] uppercase font-bold tracking-[0.4em] text-[#d4a017] mb-4">
             Complete Collection
           </p>
-          <h1 className="text-5xl font-serif font-medium text-gray-900 mb-6 font-serif">
+          <h1 className="text-5xl font-serif font-bold text-[#0F172A] mb-6 shadow-sm shadow-white/50">
             Issues Library
           </h1>
-          <p className="max-w-xl mx-auto text-gray-500 font-light leading-relaxed mb-12">
+          <p className="max-w-xl mx-auto text-gray-500 font-light leading-relaxed mb-12 italic">
             Browse our archive of monthly Thai Nilam issues. Unlock any issue to start
             reading instantly.
           </p>
 
           {/* Filter Bar */}
-          <div className="flex items-center justify-center gap-4 mb-20 p-4 bg-gray-50 rounded-2xl w-fit mx-auto border border-gray-100 shadow-sm">
-            <div className="flex items-center gap-2 px-3 text-gray-400">
+          <div className="flex items-center justify-center gap-4 mb-20 p-4 bg-white rounded-2xl w-fit mx-auto border border-[#0F172A]/5 shadow-lg shadow-[#0F172A]/5">
+            <div className="flex items-center gap-2 px-3 text-[#d4a017]">
               <Filter className="w-4 h-4" />
-              <span className="text-[10px] uppercase font-bold tracking-widest">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#0F172A]">
                 Filter By
               </span>
             </div>
 
-            <div className="h-6 w-px bg-gray-200 mx-2"></div>
+            <div className="h-6 w-px bg-gray-100 mx-2"></div>
 
             <div className="relative group">
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="appearance-none bg-transparent pl-4 pr-10 py-2 text-sm font-semibold text-gray-900 focus:outline-none cursor-pointer"
+                className="appearance-none bg-transparent pl-4 pr-10 py-2 text-sm font-bold text-[#0F172A] focus:outline-none cursor-pointer"
               >
                 {months.map((m) => (
                   <option key={m} value={m}>
@@ -101,14 +101,14 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none transition-transform group-hover:translate-y-[-40%]" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d4a017] pointer-events-none transition-transform group-hover:translate-y-[-40%]" />
             </div>
 
             <div className="relative group">
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="appearance-none bg-transparent pl-4 pr-10 py-2 text-sm font-semibold text-gray-900 focus:outline-none cursor-pointer"
+                className="appearance-none bg-transparent pl-4 pr-10 py-2 text-sm font-bold text-[#0F172A] focus:outline-none cursor-pointer"
               >
                 {years.map((y) => (
                   <option key={y} value={y}>
@@ -116,7 +116,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none transition-transform group-hover:translate-y-[-40%]" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d4a017] pointer-events-none transition-transform group-hover:translate-y-[-40%]" />
             </div>
           </div>
         </div>
@@ -124,12 +124,12 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
         {/* Library Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {loading ? (
-            <div className="col-span-full flex flex-col items-center justify-center p-12 text-gray-400">
+            <div className="col-span-full flex flex-col items-center justify-center p-12 text-[#d4a017]">
               <Loader2 className="w-8 h-8 animate-spin mb-4" />
-              <p>Loading your library...</p>
+              <p className="font-bold tracking-widest uppercase text-xs text-[#0F172A]">Loading Library...</p>
             </div>
           ) : issues.length === 0 ? (
-            <div className="col-span-full text-center text-gray-500 py-12">
+            <div className="col-span-full text-center text-[#0F172A]/30 py-12 italic">
               No issues found for this period.
             </div>
           ) : (

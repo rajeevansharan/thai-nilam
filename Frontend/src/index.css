@@ -5,14 +5,16 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --navy-dark: #0F172A;
+  --gold-primary: #d4a017;
+  --gold-hover: #b8860b;
+  --slate-white: #F8FAFC;
+  --text-main: #1E293B;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: white;
+  color: var(--text-main);
+  background-color: var(--slate-white);
   overflow-x: hidden;
   font-family: 'Outfit', sans-serif;
 }

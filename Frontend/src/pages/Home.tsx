@@ -17,7 +17,7 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ onNavigate, onUnlock }) => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Header activePage="home" onNavigate={onNavigate} />
       
       <main>
@@ -25,14 +25,14 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onUnlock }) => {
         
         {/* Past Issues Section */}
         <section className="px-8 mt-24">
-          <div className="flex items-end justify-between mb-12">
+          <div className="flex items-end justify-between mb-12 max-w-7xl mx-auto">
             <div className="text-left">
-              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-[#c49a6c] mb-2">Available Now</p>
-              <h2 className="text-4xl font-serif font-medium text-gray-900">Past Issues</h2>
+              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-[#d4a017] mb-2">Available Now</p>
+              <h2 className="text-4xl font-serif font-bold text-[#0F172A]">Past Issues</h2>
             </div>
             <button 
               onClick={() => onNavigate?.('library')}
-              className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-600 hover:text-amber-700 transition-colors group"
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#d4a017] hover:text-[#b8860b] transition-colors group"
             >
               View all
               <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
@@ -69,10 +69,16 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onUnlock }) => {
           </div>
         </section>
 
-        {/* Call to Action or Featured Quote Section (Subtle) */}
-        <section className="mt-40 mb-20 bg-gray-50 py-24 px-8 text-center border-y border-gray-100 italic font-serif text-3xl text-gray-400">
-           "Design is not just what it looks like and feels like. <br/>
-           Design is how it works."
+        {/* Call to Action or Featured Quote Section (Premium style) */}
+        <section className="mt-40 mb-20 bg-[#0F172A] py-28 px-8 text-center border-y border-white/5 relative overflow-hidden">
+           <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-5">
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[20rem] font-serif text-white/10 select-none">"</div>
+           </div>
+           <p className="relative z-10 italic font-serif text-4xl text-[#d4a017] leading-relaxed max-w-4xl mx-auto">
+             "Design is not just what it looks like and feels like. <br/>
+             Design is how it works."
+           </p>
+           <p className="mt-8 text-[10px] uppercase font-bold tracking-[.4em] text-white/40">- Steve Jobs</p>
         </section>
 
       </main>
