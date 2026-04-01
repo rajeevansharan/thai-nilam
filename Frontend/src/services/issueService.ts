@@ -18,3 +18,9 @@ export const createIssue = async (formData: FormData) => {
   });
   return response.data;
 };
+
+export const initiatePayment = async (userId: string, issueId: string) => {
+  const response = await api.post('/payments/initiate', { userId, issueId });
+  return response.data;
+};
+

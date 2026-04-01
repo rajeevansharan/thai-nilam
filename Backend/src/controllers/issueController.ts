@@ -42,7 +42,8 @@ export const createIssue = async (req: Request, res: Response): Promise<void> =>
 
 export const getAllIssues = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { month, year, userId } = req.query;
+    const { month, year, userId: rawUserId } = req.query;
+    const userId = rawUserId ? parseInt(rawUserId as string) : undefined;
     
     const filter: any = {};
     if (month && month !== 'All') {
@@ -58,7 +59,7 @@ export const getAllIssues = async (req: Request, res: Response): Promise<void> =
       include: {
         contentImages: true,
         purchases: userId ? {
-          where: { userId: userId as string }
+          where: { userId, status: 'paid' }
         } : false
       }
     });
