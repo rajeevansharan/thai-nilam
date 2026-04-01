@@ -58,17 +58,23 @@ export const getAllIssues = async (req: Request, res: Response): Promise<void> =
       orderBy: { createdAt: 'desc' },
       include: {
         contentImages: true,
+        favorites: userId ? {
+          where: { userId }
+        } : false,
         purchases: userId ? {
           where: { userId, status: 'paid' }
         } : false
       }
     });
 
-    const formattedIssues = issues.map(issue => ({
-      ...issue,
-      isPurchased: issue.purchases ? issue.purchases.length > 0 : false,
-      purchases: undefined // remove the internal purchases array
-    }));
+    const formattedIssues = issues.map(issue => {
+      const { purchases, favorites, ...rest } = issue as any;
+      return {
+        ...rest,
+        isPurchased: purchases ? purchases.length > 0 : false,        
+        isFavorite: favorites ? favorites.length > 0 : false
+      };
+    });
 
     res.json(formattedIssues);
   } catch (error) {
@@ -78,12 +84,32 @@ export const getAllIssues = async (req: Request, res: Response): Promise<void> =
 
 export const getRecentIssues = async (req: Request, res: Response): Promise<void> => {
   try {
+    const { userId: rawUserId } = req.query;
+    const userId = rawUserId ? parseInt(rawUserId as string) : undefined;
+    
     const issues = await prisma.issue.findMany({
       take: 3,
       orderBy: { createdAt: 'desc' },
+      include: {
+        favorites: userId ? {
+          where: { userId }
+        } : false,
+        purchases: userId ? {
+          where: { userId, status: 'paid' }
+        } : false
+      }
     });
-    res.json(issues);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch recent issues' });
-  }
-};
+    
+    const formattedIssues = issues.map(issue => {
+      const { purchases, favorites, ...rest } = issue as any;
+      return {
+        ...rest,
+        isPurchased: purchases ? purchases.length > 0 : false,        
+        isFavorite: favorites ? favorites.length > 0 : false
+      };
+    });  res.json(formattedIssues);
+    
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch recent issues' });
+      }
+    };
