@@ -47,9 +47,10 @@ async function main() {
       year: '2026',
       pdfUrl: 'https://example.com/pdf/jan2026.pdf',
       imageUrl: 'https://example.com/img/jan2026.jpg',
+      price: 500.00,
     },
   });
-
+  
   const issue2 = await prisma.issue.create({
     data: {
       title: 'February Issue 2026',
@@ -58,6 +59,7 @@ async function main() {
       year: '2026',
       pdfUrl: 'https://example.com/pdf/feb2026.pdf',
       imageUrl: 'https://example.com/img/feb2026.jpg',
+      price: 750.00,
     },
   });
 

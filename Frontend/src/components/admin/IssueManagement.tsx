@@ -93,10 +93,10 @@ const IssueManagement: React.FC = () => {
       <div className="flex items-center justify-between mb-8">
         <div className="text-left">
           <h1 className="text-3xl font-serif font-semibold text-gray-900">
-            Upload New Edition
+            Upload Thai Nilam Issue
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Add monthly magazine issues and covers to the digital library.
+            Add monthly Thai Nilam issues and covers to the digital library.
           </p>
         </div>
       </div>

@@ -46,7 +46,7 @@ const Hero: React.FC = () => {
         <div className="absolute -inset-1 bg-gradient-to-r from-[#d4a017] to-amber-200 rounded-lg blur opacity-50 group-hover:opacity-75 transition duration-1000"></div>
         <div className="relative bg-white p-4 rounded shadow-2xl overflow-hidden transform group-hover:rotate-2 transition duration-500">
           <div className="flex flex-col items-center justify-center border-2 border-gray-100 p-8 min-w-[280px]">
-             <div className="text-3xl font-serif font-bold tracking-[0.2em] text-gray-900 mb-2">EDITION</div>
+             <div className="text-3xl font-serif font-bold tracking-[0.2em] text-gray-900 mb-2">Thai Nilam</div>
              <div className="text-[10px] tracking-[0.3em] uppercase text-gray-500 mb-8 border-b-2 border-gray-100 pb-2">Digital Magazine</div>
              <img src={heroImg} className="w-[200px] h-[280px] object-cover rounded-sm mb-6 shadow-md" alt="Latest Issue Cover" />
              <div className="text-[10px] italic font-serif text-gray-400">March 2026</div>

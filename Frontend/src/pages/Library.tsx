@@ -74,7 +74,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
             Issues Library
           </h1>
           <p className="max-w-xl mx-auto text-gray-500 font-light leading-relaxed mb-12">
-            Browse our archive of monthly editions. Unlock any issue to start
+            Browse our archive of monthly Thai Nilam issues. Unlock any issue to start
             reading instantly.
           </p>
 
@@ -141,7 +141,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
                 month={`${issue.month} ${issue.year}`}
                 title={issue.title}
                 description={issue.description}
-                price="$4.99"
+                price={issue.price}
                 isPurchased={issue.isPurchased}
                 isUnlocked={issue.isPurchased || user?.role === "ADMIN"}
                 onUnlock={onUnlock}

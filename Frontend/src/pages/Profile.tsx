@@ -62,9 +62,9 @@ const Profile: React.FC<ProfileProps> = ({ onNavigate }) => {
             <div className="bg-amber-50 rounded-2xl p-8 border border-amber-100">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="text-left">
-                  <h2 className="text-xl font-serif font-semibold text-[#8b6b3e] mb-2">EDITION Premium</h2>
+                  <h2 className="text-xl font-serif font-semibold text-[#8b6b3e] mb-2">Thai Nilam Premium</h2>
                   <p className="text-sm text-[#a38b68] max-w-sm leading-relaxed">
-                    You have full access to our entire library and future editions released every month.
+                    You have full access to our entire library and future Thai Nilam releases every month.
                   </p>
                 </div>
                 <div className="text-left md:text-right">

@@ -7,13 +7,13 @@ interface IssueCardProps {
   title: string;
   description: string;
   isUnlocked?: boolean;
-  price?: string;
+  price?: string | number;
   isPurchased?: boolean;
   onUnlock?: (issue: any) => void;
   contentImages?: { url: string }[];
 }
 
-const IssueCard: React.FC<IssueCardProps> = ({ id, image, month, title, description, isUnlocked = false, price, isPurchased = false, onUnlock, contentImages }) => {
+const IssueCard: React.FC<IssueCardProps> = ({ id, image, month, title, description, isUnlocked = false, price = 500, isPurchased = false, onUnlock, contentImages }) => {
   return (
     <div className="flex flex-col group transition-all duration-300 transform hover:-translate-y-2 h-full bg-white rounded-2xl">
       {/* Magazine cover visual */}
@@ -53,7 +53,7 @@ const IssueCard: React.FC<IssueCardProps> = ({ id, image, month, title, descript
             ? 'bg-[#0a0d16] text-white hover:bg-gray-800' 
             : 'bg-amber-500 text-[#0a0d16] hover:bg-amber-600 hover:shadow-lg hover:shadow-amber-500/30'
           }`}>
-          {isUnlocked || isPurchased ? 'Read Now' : `Unlock for ${price || '$4.99'}`}
+          {isUnlocked || isPurchased ? 'Read Now' : `Unlock for LKR ${typeof price === 'number' ? price.toFixed(2) : price}`}
         </button>
       </div>
     </div>

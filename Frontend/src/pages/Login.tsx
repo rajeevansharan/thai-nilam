@@ -35,7 +35,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         {/* Abstract subtle pattern or gradient could go here */}
         <div className="relative z-10">
           <h1 className="text-white text-6xl md:text-8xl font-serif font-bold tracking-[0.1em] mb-6">
-            EDITION
+            Thai Nilam
           </h1>
           <div className="h-px w-24 bg-white/20 mx-auto mb-8"></div>
           <p className="text-slate-400 text-lg md:text-xl font-light max-w-md leading-relaxed">

@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(uuid())
+  id        Int        @id @default(autoincrement())
   email     String     @unique
   password  String
   name      String
@@ -22,13 +22,14 @@ model User {
 }
 
 model Issue {
-  id            String   @id @default(uuid())
+  id            Int      @id @default(autoincrement())
   title         String?
   description   String
   month         String   // e.g., 1-12 or 'January'
   year          String
   pdfUrl        String
   imageUrl      String   // (coverImage equivalent)
+  price         Float    @default(500.0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -38,9 +39,9 @@ model Issue {
 }
 
 model ContentImage {
-  id      String @id @default(uuid())
+  id      Int    @id @default(autoincrement())
   url     String
-  issueId String
+  issueId Int
   issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
 }
 
@@ -51,9 +52,9 @@ enum PurchaseStatus {
 }
 
 model Purchase {
-  id              String         @id @default(uuid())
-  userId          String
-  magazineIssueId String
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  magazineIssueId Int
   paidAt          DateTime?      
   amount          Float
   status          PurchaseStatus @default(pending)
@@ -67,9 +68,9 @@ model Purchase {
 }
 
 model Favorite {
-  id              String   @id @default(uuid())
-  userId          String
-  magazineIssueId String
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  magazineIssueId Int
   createdAt       DateTime @default(now())
 
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
