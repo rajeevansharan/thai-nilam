@@ -113,3 +113,52 @@ export const getRecentIssues = async (req: Request, res: Response): Promise<void
         res.status(500).json({ error: 'Failed to fetch recent issues' });
       }
     };
+
+export const updateIssue = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { title, description, month, year, price } = req.body;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    const updateData: any = {
+      title,
+      description,
+      month,
+      year,
+      price: price ? parseFloat(price) : undefined
+    };
+
+    if (files) {
+      if (files['pdf']?.[0]) updateData.pdfUrl = files['pdf'][0].path;
+      if (files['image']?.[0]) updateData.imageUrl = files['image'][0].path;
+    }
+
+    const updatedIssue = await prisma.issue.update({
+      where: { id: parseInt(id as any) },
+      data: updateData,
+      include: {
+        contentImages: true
+      }
+    });
+
+    res.json(updatedIssue);
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({ error: 'Failed to update issue' });
+  }
+};
+
+export const deleteIssue = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    await prisma.issue.delete({
+      where: { id: parseInt(id as any) }
+    });
+
+    res.status(200).json({ message: 'Issue deleted successfully' });
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({ error: 'Failed to delete issue' });
+  }
+};

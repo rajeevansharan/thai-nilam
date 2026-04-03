@@ -33,3 +33,17 @@ export const getFavorites = async (userId: string | number) => {
   const response = await api.get(`/users/favorites/${userId}`);
   return response.data;
 };
+
+export const updateIssue = async (id: number | string, formData: FormData) => {
+  const response = await api.put(`/issues/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export const deleteIssue = async (id: number | string) => {
+  const response = await api.delete(`/issues/${id}`);
+  return response.data;
+};

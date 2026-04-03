@@ -3,12 +3,14 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import IssueCard from "../components/IssueCard";
 import { Filter, ChevronDown, Loader2 } from "lucide-react";
-import { getAllIssues } from "../services/issueService";
+import { getAllIssues, toggleFavorite } from "../services/issueService";
+
+import type { User, Issue } from "../types";
 
 interface LibraryProps {
   onNavigate?: (page: string) => void;
-  user?: any;
-  onUnlock?: (issue: any) => void;
+  user?: User | null;
+  onUnlock?: (issue: Issue) => void;
 }
 
 const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
@@ -18,7 +20,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
 
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [issues, setIssues] = useState<any[]>([]);
+  const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
 
   const months = [
@@ -58,6 +60,37 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
   const getImageUrl = (path: string) => {
     if (path.startsWith("http")) return path;
     return `http://localhost:5000/${path.replace(/\\/g, "/")}`; // Ensure forward slashes for URLs
+  };
+
+  const handleToggleFavorite = async (
+    issueId: string | number,
+    currentStatus: boolean,
+  ) => {
+    if (!user?.id) {
+      alert("Please login to save favorites.");
+      return;
+    }
+
+    // Optimistic UI update
+    setIssues(
+      issues.map((issue) =>
+        issue.id === issueId ? { ...issue, isFavorite: !currentStatus } : issue,
+      ),
+    );
+
+    try {
+      await toggleFavorite(user.id, issueId);
+    } catch (error) {
+      console.error("Failed to toggle favorite", error);
+      // Revert on failure
+      setIssues(
+        issues.map((issue) =>
+          issue.id === issueId
+            ? { ...issue, isFavorite: currentStatus }
+            : issue,
+        ),
+      );
+    }
   };
 
   return (
@@ -144,7 +177,9 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
                 price={issue.price}
                 isPurchased={issue.isPurchased}
                 isUnlocked={issue.isPurchased || user?.role === "ADMIN"}
+                isFavorite={issue.isFavorite}
                 onUnlock={onUnlock}
+                onToggleFavorite={handleToggleFavorite}
                 contentImages={issue.contentImages}
               />
             ))

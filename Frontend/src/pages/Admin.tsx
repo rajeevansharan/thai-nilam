@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Header from "../components/Header";
+import AdminHeader from "../components/AdminHeader";
 import Footer from "../components/Footer";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import IssueManagement from "../components/admin/IssueManagement";
@@ -14,7 +14,7 @@ const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header activePage="admin" onNavigate={onNavigate} />
+      <AdminHeader onNavigate={onNavigate} />
 
       <div className="flex-grow flex">
         {/* Sidebar Navigation */}
