@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Library from "./pages/Library";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import AdminProfile from "./pages/AdminProfile";
 import Login from "./pages/Login";
 import Payment from "./pages/Payment";
 import "./App.css";
@@ -28,6 +29,11 @@ function App() {
     setPage("payment");
   };
 
+  const handleLogout = () => {
+    setUser(null);
+    setPage("login");
+  };
+
   if (page === "login") {
     return <Login onLogin={handleLogin} />;
   }
@@ -41,11 +47,18 @@ function App() {
       <Profile
         onNavigate={setPage}
         user={user}
-        onLogout={() => {
-          setUser(null);
-          setPage("login");
-        }}
+        onLogout={handleLogout}
         onUnlock={navigateToPayment}
+      />
+    );
+  }
+
+  if (page === "admin-profile") {
+    return (
+      <AdminProfile
+        onNavigate={setPage}
+        user={user}
+        onLogout={handleLogout}
       />
     );
   }

@@ -24,7 +24,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onNavigate }) => {
       {/* Profile icon */}
       <div className="flex items-center">
         <button
-          onClick={() => onNavigate?.('profile')}
+          onClick={() => onNavigate?.('admin-profile')}
           className="p-2.5 rounded-full transition-all duration-200 text-gray-400 hover:bg-gray-50 hover:text-[#0F172A]"
         >
           <User className="w-5 h-5" strokeWidth={2} />
