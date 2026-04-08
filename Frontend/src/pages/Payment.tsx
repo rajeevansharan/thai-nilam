@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import MagazinePreview from "../components/MagazinePreview";
 import {
-  CreditCard,
   Lock,
   CheckCircle,
   ShieldCheck,
   ArrowRight,
   Loader2,
-  Info,
+  Calendar,
+  User as UserIcon,
+  CreditCard as CardIcon,
 } from "lucide-react";
-import { initiatePayment } from "../services/issueService";
 
 interface PaymentProps {
   onNavigate: (page: string) => void;
@@ -18,60 +19,55 @@ interface PaymentProps {
   user: any;
 }
 
-declare global {
-  interface Window {
-    payhere: any;
-  }
-}
-
 const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
-  const [step, setStep] = useState(1); // 1: Details, 2: Processing, 3: Success
+  const [step, setStep] = useState(1); // 1: Checkout, 2: Success
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  
+  // Form State
+  const [cardName, setCardName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
 
   useEffect(() => {
-    // Dynamically load PayHere script based on environment
-    const isProduction = import.meta.env.PROD;
-    const scriptUrl = isProduction
-      ? "https://www.payhere.lk/lib/payhere.js"
-      : "https://sandbox.payhere.lk/lib/payhere.js";
+    if (!issue) {
+      onNavigate("home");
+    }
+    window.scrollTo(0, 0);
+  }, [issue]);
 
-    const script = document.createElement("script");
-    script.src = scriptUrl;
-    script.async = true;
-    script.id = "payhere-sdk";
-    script.onload = () => {
-      console.log(`PayHere SDK loaded from ${scriptUrl}`);
-    };
-    document.head.appendChild(script);
+  if (!issue) return null;
 
-    // Check if redirected back from PayHere with success status
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get("status");
-    if (status === "success") {
-      // In a real app, we should verify status with backend here
-      setStep(3);
-    } else if (status === "cancel") {
-      setError("Payment was cancelled. Please try again.");
+  // Auto-format card number
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    const matches = v.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || "";
+    const parts = [];
+
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
     }
 
-    return () => {
-      // Clean up script on unmount safely
-      const scriptNode = document.getElementById("payhere-sdk");
-      if (scriptNode && scriptNode.parentNode) {
-        scriptNode.parentNode.removeChild(scriptNode);
-      }
-    };
-  }, []);
+    if (parts.length) {
+      return parts.join(" ");
+    } else {
+      return v;
+    }
+  };
 
-  if (!issue) {
-    onNavigate("home");
-    return null;
-  }
+  // Auto-format expiry date
+  const formatExpiry = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    if (v.length >= 2) {
+      return v.substring(0, 2) + "/" + v.substring(2, 4);
+    }
+    return v;
+  };
 
-  const handlePayment = async () => {
+  const handleSimulatedPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!user) {
-      alert("Please login to continue");
       onNavigate("login");
       return;
     }
@@ -79,247 +75,230 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
     setLoading(true);
     setError(null);
 
+    // Simulate network delay
+    setTimeout(() => {
+      setLoading(false);
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 2500);
+  };
+
+  // Keep original logic as reference but not used in the new UI flow
+  /*
+  const handleRealPayment = async () => {
+    if (!user) { onNavigate("login"); return; }
+    setLoading(true);
     try {
       const paymentParams = await initiatePayment(user.id, issue.id);
-
-      // PayHere methods
-      window.payhere.onCompleted = function onCompleted(orderId: string) {
-        console.log("Payment completed. OrderID:" + orderId);
-        setStep(3);
-      };
-
-      window.payhere.onDismissed = function onDismissed() {
-        console.log("Payment dismissed");
-        setLoading(false);
-      };
-
-      window.payhere.onError = function onError(error: string) {
-        console.log("Error:" + error);
-        setError("Payment error occurred. Please try again.");
-        setLoading(false);
-      };
-
-      // Start PayHere Payment
       window.payhere.startPayment(paymentParams);
     } catch (err: any) {
-      console.error(err);
-      setError(
-        err.response?.data?.error ||
-          "Failed to initiate payment. Please try again.",
-      );
+      setError(err.response?.data?.error || "Failed to initiate payment.");
       setLoading(false);
     }
   };
+  */
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+    <div className="min-h-screen bg-[#FBF9F4] flex flex-col font-sans">
       <Header activePage="library" onNavigate={onNavigate} />
 
-      <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-12 md:py-20">
-        {step === 1 && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            {/* Magazine Details & Content Preview */}
-            <div className="lg:col-span-7 space-y-8">
-              <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-                <div className="flex flex-col md:flex-row gap-8">
-                  <div className="w-full md:w-1/3">
-                    <div className="aspect-[3/4] rounded-xl overflow-hidden shadow-2xl border border-gray-50">
-                      <img
-                        src={issue.image}
-                        alt={issue.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#d4a017] mb-2">
-                      {issue.month}
-                    </p>
-                    <h1 className="text-3xl font-serif font-bold text-[#0F172A] mb-4">
-                      {issue.title}
-                    </h1>
-                    <p className="text-gray-500 leading-relaxed italic mb-6">
-                      {issue.description}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-[#d4a017] font-medium">
-                      <span className="flex items-center gap-1">
-                        <Lock className="w-3 h-3" /> Digital Thai Nilam
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3" /> Secure Access
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      <main className="flex-grow max-w-7xl mx-auto w-full px-6 py-12 md:py-16 space-y-16">
+        {step === 1 ? (
+          <>
+            {/* Top Section: Magazine Preview */}
+            <MagazinePreview issue={issue} />
 
-              {/* Content Preview Images */}
-              <div className="space-y-6">
-                <div className="flex items-center justify-between border-b border-gray-50 pb-4">
-                  <h2 className="text-xl font-serif font-bold text-[#0F172A]">
-                    Inside this Thai Nilam
-                  </h2>
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#d4a017]">
-                    Sneak Peek
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {issue.contentImages && issue.contentImages.length > 0
-                    ? issue.contentImages.map((img: any, idx: number) => (
-                        <div
-                          key={idx}
-                          className="aspect-video rounded-xl overflow-hidden bg-gray-50 shadow-sm transition-transform hover:scale-[1.02] border border-gray-100"
-                        >
-                          <img
-                            src={
-                              img.url.startsWith("http")
-                                ? img.url
-                                : `http://localhost:5000/${img.url.replace(/\\/g, "/")}`
-                            }
-                            alt={`Preview ${idx + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))
-                    : // Fallback placeholders if no content images found
-                      [1, 2, 3].map((_, idx) => (
-                        <div
-                          key={idx}
-                          className="aspect-video rounded-xl bg-gray-50 flex items-center justify-center border-2 border-dashed border-gray-100"
-                        >
-                          <span className="text-[10px] font-bold text-gray-300 uppercase tracking-tighter">
-                            Preview {idx + 1}
-                          </span>
-                        </div>
-                      ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Section */}
-            <div className="lg:col-span-5">
-              <div className="bg-white rounded-3xl p-8 border border-gray-100 sticky top-24 shadow-xl">
-                <h3 className="text-xl font-serif font-bold text-[#0F172A] mb-8">
-                  Secure Checkout
-                </h3>
-
-                <div className="space-y-6 mb-8">
-                  <div className="flex items-center justify-between py-4 border-b border-gray-50">
-                    <span className="text-gray-500 font-medium">Magazine Price</span>
-                    <span className="font-bold text-[#0F172A]">
-                      LKR {Number(issue.price || 500).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between py-4 border-b border-gray-50">
-                    <span className="text-gray-500 font-medium">Platform Fee</span>
-                    <span className="font-bold text-[#d4a017]">FREE</span>
-                  </div>
-                  <div className="flex items-center justify-between py-4">
-                    <span className="text-[#0F172A] font-bold">
-                      Total Amount
-                    </span>
-                    <span className="text-2xl font-bold text-[#d4a017]">
-                      LKR {Number(issue.price || 500).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600 font-medium font-serif italic text-center">
-                    "{error}"
-                  </div>
-                )}
-
-                <div className="space-y-4 mb-8">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#d4a017]">
-                    Payment Method
-                  </p>
-                  <div className="p-4 border-2 border-[#d4a017] bg-[#d4a017]/5 rounded-xl flex items-center justify-between shadow-sm shadow-[#d4a017]/10">
-                    <div className="flex items-center gap-3">
-                      <CreditCard className="w-5 h-5 text-[#d4a017]" />
+            {/* Bottom Section: Payment Section */}
+            <section id="payment" className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                {/* Left: Payment Form Card */}
+                <div className="lg:col-span-8 h-full">
+                  <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-10 md:p-12 h-full">
+                    <form onSubmit={handleSimulatedPayment} className="space-y-10">
                       <div>
-                        <p className="text-sm font-bold text-[#0F172A]">
-                          PayHere Checkout
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                          Visa, Mastercard, Amex, Genie
-                        </p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d4a017] mb-5">Select Payment Method</p>
+                        <div className="w-full">
+                          <button
+                            type="button"
+                            className="w-full md:w-1/2 p-4 rounded-xl border-[1.5px] border-[#d4a017] bg-white transition-all flex flex-col items-center justify-center gap-1 group shadow-sm"
+                          >
+                            <CardIcon className="w-6 h-6 text-[#1e293b]" />
+                            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#1e293b]">Card</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">Cardholder Name</label>
+                          <div className="relative group">
+                            <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
+                            <input 
+                              required
+                              type="text"
+                              placeholder="J. Smith"
+                              value={cardName}
+                              onChange={(e) => setCardName(e.target.value)}
+                              className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">Card Number</label>
+                          <div className="relative group">
+                            <CardIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
+                            <input 
+                              required
+                              type="text"
+                              placeholder="0000 0000 0000 0000"
+                              maxLength={19}
+                              value={cardNumber}
+                              onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                              className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">Expiry Date</label>
+                            <div className="relative group">
+                              <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
+                              <input 
+                                required
+                                type="text"
+                                placeholder="MM/YY"
+                                maxLength={5}
+                                value={expiry}
+                                onChange={(e) => setExpiry(formatExpiry(e.target.value))}
+                                className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">CVV</label>
+                            <div className="relative group">
+                              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
+                              <input 
+                                required
+                                type="password"
+                                placeholder=". . ."
+                                maxLength={3}
+                                value={cvv}
+                                onChange={(e) => setCvv(e.target.value.replace(/[^0-9]/g, ""))}
+                                className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-5 bg-[#1e293b] text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:translate-y-0 active:scale-[0.98]"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin text-[#d4a017]" />
+                            Processing Purchase...
+                          </>
+                        ) : (
+                          <>
+                            Complete Purchase
+                            <ShieldCheck className="w-5 h-5 opacity-90" />
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+                {/* Right: Summary Side Side */}
+                <div className="lg:col-span-4 h-full">
+                  <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-8 md:p-10 h-full flex flex-col">
+                    <div className="flex-grow">
+                      <div className="flex items-center gap-5 mb-10 pb-8 border-b border-gray-100">
+                        <div className="w-20 h-24 shrink-0 shadow-lg rotate-[-2deg]">
+                          <img src={issue.image} className="w-full h-full object-cover rounded-xl" alt="Thumbnail" />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <h4 className="text-xl font-serif font-bold text-[#1e293b]">{issue.title}</h4>
+                          <p className="text-[10px] font-bold text-[#d4a017] uppercase tracking-[0.2em]">Digital Access Only</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-5 mb-10">
+                        <div className="flex justify-between text-[13px] font-medium">
+                          <span className="text-[#94a3b8]">Magazine Price</span>
+                          <span className="text-[#1e293b] font-bold">LKR {Number(issue.price || 500).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-[13px] font-medium">
+                          <span className="text-[#94a3b8]">Platform Fee</span>
+                          <span className="text-green-500 font-bold">FREE</span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
+                        <span className="text-lg font-serif font-bold text-[#1e293b]">Total Amount</span>
+                        <span className="text-3xl font-bold text-[#d4a017]">LKR {Number(issue.price || 500).toFixed(2)}</span>
                       </div>
                     </div>
-                    <CheckCircle className="w-5 h-5 text-[#d4a017] fill-[#d4a017]/10" />
+
+                    <div className="mt-12 space-y-8">
+                      <div className="flex items-start gap-3 p-5 bg-[#fffcf0] rounded-2xl border border-[#fff1bd]">
+                        <ShieldCheck className="w-4 h-4 text-[#d4a017] shrink-0 mt-0.5" />
+                        <p className="text-[11px] text-[#86660d] font-medium leading-relaxed opacity-80">
+                          Your payment is protected with 256-bit SSL encryption. All transactions are secure and private.
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center gap-6 saturate-0 opacity-40">
+                           <span className="text-[11px] font-black italic text-[#1e293b]">VISA</span>
+                           <div className="h-4 w-[1px] bg-gray-200"></div>
+                           <div className="flex items-center gap-1">
+                             <div className="w-3 h-3 rounded-full bg-orange-400 -mr-1"></div>
+                             <div className="w-3 h-3 rounded-full bg-red-400 opacity-60"></div>
+                             <span className="text-[9px] font-bold tracking-tighter ml-1">MASTERCARD</span>
+                           </div>
+                           <div className="h-4 w-[1px] bg-gray-200"></div>
+                           <span className="text-[11px] font-black text-[#1e293b]">AMEX</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <button
-                  onClick={handlePayment}
-                  disabled={loading}
-                  className="w-full py-4 bg-[#0F172A] text-white rounded-xl font-bold text-sm hover:bg-[#1E293B] transition-all flex items-center justify-center gap-2 group shadow-lg shadow-[#0F172A]/10 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-[#d4a017]" />
-                  ) : (
-                    <>
-                      Pay via PayHere
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
-                </button>
-
-                <div className="mt-8 p-4 bg-gray-50 rounded-xl flex gap-3 border border-gray-100">
-                  <Info className="w-5 h-5 text-[#d4a017] shrink-0" />
-                  <p className="text-xs text-gray-500 leading-relaxed font-serif italic">
-                    Once purchased, this issue will be permanently added to
-                    your library and accessible from any device.
-                  </p>
-                </div>
               </div>
+            </section>
+          </>
+        ) : (
+          /* Success Step */
+          <div className="max-w-xl mx-auto text-center py-12 lg:py-24 bg-white rounded-[3rem] p-12 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-700">
+            <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner">
+              <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="max-w-md mx-auto text-center py-20">
-            <div className="relative w-24 h-24 mx-auto mb-8">
-              <div className="absolute inset-0 border-4 border-gray-50 rounded-full"></div>
-              <Loader2 className="absolute inset-0 w-full h-full text-[#d4a017] animate-spin" />
-            </div>
-            <h2 className="text-3xl font-serif font-bold text-[#0F172A] mb-4">
-              Processing Payment
+            <p className="text-[10px] uppercase font-bold tracking-[0.4em] text-green-600 mb-4">Transaction Successful</p>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#0F172A] mb-6">
+              Unlock Complete!
             </h2>
-            <p className="text-gray-500 italic font-serif">
-              Please do not refresh the page or close this window. We are
-              securing your transaction.
-            </p>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="max-w-lg mx-auto text-center py-20 bg-white rounded-3xl p-12 shadow-2xl border border-gray-50 animate-in fade-in zoom-in duration-500">
-            <div className="w-20 h-20 bg-[#d4a017]/10 rounded-full flex items-center justify-center mx-auto mb-8">
-              <CheckCircle className="w-10 h-10 text-[#d4a017]" />
-            </div>
-            <h2 className="text-4xl font-serif font-bold text-[#0F172A] mb-4">
-              Unlock Successful!
-            </h2>
-            <p className="text-gray-500 mb-10 leading-relaxed italic font-serif text-lg">
-              Congratulations! You now have full access to{" "}
-              <span className="font-bold text-[#0F172A]">"{issue.title}"</span>.
+            <p className="text-gray-500 mb-12 leading-relaxed italic font-serif text-lg max-w-sm mx-auto">
+              You now have full access to <span className="text-[#d4a017] font-bold">"{issue.title}"</span>. The content is waiting for you in your library.
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-4 flex flex-col sm:flex-row gap-4 sm:space-y-0">
               <button
                 onClick={() => onNavigate("library")}
-                className="w-full py-4 bg-[#d4a017] text-white rounded-xl font-bold text-sm hover:bg-[#b8860b] transition-all flex items-center justify-center gap-2 group shadow-lg"
+                className="flex-1 py-5 bg-[#0F172A] text-white rounded-2xl font-bold text-sm hover:bg-black transition-all flex items-center justify-center gap-3 shadow-xl"
               >
                 Go to My Library
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => onNavigate("home")}
-                className="w-full py-4 text-gray-400 font-bold text-sm hover:text-[#0F172A] transition-all uppercase tracking-widest"
+                className="flex-1 py-5 border border-gray-100 text-gray-500 rounded-2xl font-bold text-xs hover:bg-gray-50 transition-all uppercase tracking-widest"
               >
-                Back to Home
+                Return Home
               </button>
             </div>
           </div>

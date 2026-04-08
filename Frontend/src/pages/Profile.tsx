@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Loader2,
   ShieldCheck,
+  Heart,
 } from "lucide-react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -103,10 +104,10 @@ const Profile: React.FC<ProfileProps> = ({
                   className={`flex items-center justify-between w-full px-6 py-4 rounded-xl text-xs font-bold transition-all border shadow-sm ${activeTab === "saved" ? "bg-[#0F172A] text-white shadow-xl translate-x-2" : "text-gray-400 hover:text-[#0F172A] bg-white hover:border-[#d4a017]/20"}`}
                 >
                   <span className="flex items-center gap-4">
-                    <Bookmark
+                    <Heart
                       className={`w-4 h-4 ${activeTab === "saved" ? "text-[#d4a017]" : "opacity-40"}`}
                     />{" "}
-                    Saved Collections
+                    Favourites
                   </span>
                   {activeTab === "saved" && (
                     <ChevronRight className="w-3 h-3 opacity-50" />
@@ -193,65 +194,84 @@ const Profile: React.FC<ProfileProps> = ({
             )}
 
             {activeTab === "saved" && (
-              <section className="text-left">
-                <div className="mb-8">
-                  <h2 className="text-3xl font-serif font-bold text-[#0F172A]">
-                    Saved Collections
-                  </h2>
-                  <p className="text-gray-500 mt-2">
-                    Your personalized library of favorite issues.
-                  </p>
+              <section className="text-left animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className="mb-12 border-b border-gray-100 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                  <div>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-1.5 h-1.5 bg-[#d4a017] rounded-full"></div>
+                      <span className="text-[10px] uppercase font-bold tracking-[0.4em] text-[#d4a017]">Your Archive</span>
+                    </div>
+                    <h2 className="text-4xl font-serif font-bold text-[#0F172A]">
+                      Favourites
+                    </h2>
+                    <p className="text-slate-400 text-sm mt-3 font-medium max-w-md leading-relaxed">
+                      Your personalized architectural library of curated stories, perspectives and premium issues.
+                    </p>
+                  </div>
+                  {savedIssues.length > 0 && (
+                    <div className="bg-white px-5 py-3 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Saved</span>
+                        <span className="text-xl font-serif font-bold text-[#0F172A]">{savedIssues.length}</span>
+                    </div>
+                  )}
                 </div>
 
                 {loading ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-[#d4a017]">
-                    <Loader2 className="w-8 h-8 animate-spin mb-4" />
-                    <p className="text-xs font-bold tracking-widest uppercase">
-                      Loading Favorites...
+                  <div className="flex flex-col items-center justify-center py-32 text-[#d4a017]">
+                    <div className="relative w-16 h-16 mb-6">
+                      <div className="absolute inset-0 border-2 border-[#d4a017]/10 rounded-full"></div>
+                      <Loader2 className="absolute inset-0 w-full h-full text-[#d4a017] animate-spin" />
+                    </div>
+                    <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">
+                      Syncing Library...
                     </p>
                   </div>
                 ) : savedIssues.length === 0 ? (
-                  <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center shadow-sm">
-                    <Bookmark className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-                    <p className="text-lg font-serif text-[#0F172A] mb-2">
-                      No saved issues yet
-                    </p>
-                    <p className="text-sm text-gray-500 mb-6">
-                      Browse the library to find and save issues you love.
+                  <div className="bg-white p-20 rounded-[2.5rem] border border-gray-100 text-center shadow-sm max-w-2xl mx-auto">
+                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-8">
+                      <Bookmark className="w-8 h-8 text-gray-200" />
+                    </div>
+                    <h3 className="text-2xl font-serif font-bold text-[#0F172A] mb-4">
+                      Empty Collection
+                    </h3>
+                    <p className="text-slate-400 mb-10 leading-relaxed text-sm">
+                      It seems you haven't saved any issues to your collection yet. 
+                      Bookmark your favorite stories to find them easily later.
                     </p>
                     <button
                       onClick={() => onNavigate?.("library")}
-                      className="px-6 py-2 bg-[#0F172A] text-white text-sm font-bold rounded shadow-md hover:bg-[#1E293B] transition-colors"
+                      className="px-10 py-4 bg-[#0F172A] text-white text-xs font-bold rounded-xl shadow-xl shadow-slate-900/10 hover:bg-black transition-all transform hover:-translate-y-1"
                     >
-                      Explore Library
+                      Explore Full Library
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
                     {savedIssues.map((issue) => (
-                      <IssueCard
-                        key={issue.id}
-                        id={issue.id}
-                        image={getImageUrl(issue.imageUrl)}
-                        month={`${issue.month} ${issue.year}`}
-                        title={issue.title}
-                        description={issue.description}
-                        price={issue.price}
-                        isPurchased={
-                          issue.isPurchased ||
-                          user?.isPremium ||
-                          user?.role === "ADMIN"
-                        }
-                        isUnlocked={
-                          issue.isPurchased ||
-                          user?.isPremium ||
-                          user?.role === "ADMIN"
-                        }
-                        isFavorite={true}
-                        onToggleFavorite={handleToggleFavorite}
-                        onUnlock={onUnlock}
-                        contentImages={issue.contentImages}
-                      />
+                      <div key={issue.id} className="scale-95 hover:scale-100 transition-transform duration-500 origin-top">
+                        <IssueCard
+                          id={issue.id}
+                          image={getImageUrl(issue.imageUrl)}
+                          month={`${issue.month} ${issue.year}`}
+                          title={issue.title}
+                          description={issue.description}
+                          price={issue.price}
+                          isPurchased={
+                            issue.isPurchased ||
+                            user?.isPremium ||
+                            user?.role === "ADMIN"
+                          }
+                          isUnlocked={
+                            issue.isPurchased ||
+                            user?.isPremium ||
+                            user?.role === "ADMIN"
+                          }
+                          isFavorite={true}
+                          onToggleFavorite={handleToggleFavorite}
+                          onUnlock={onUnlock}
+                          contentImages={issue.contentImages}
+                        />
+                      </div>
                     ))}
                   </div>
                 )}

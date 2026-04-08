@@ -131,18 +131,6 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
           </div>
         </section>
 
-        {/* Call to Action or Featured Quote Section (Premium style) */}
-        <section className="mt-40 mb-20 bg-[#0F172A] py-28 px-8 text-center border-y border-white/5 relative overflow-hidden">
-           <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-5">
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[20rem] font-serif text-white/10 select-none">"</div>
-           </div>
-           <p className="relative z-10 italic font-serif text-4xl text-[#d4a017] leading-relaxed max-w-4xl mx-auto">
-             "Design is not just what it looks like and feels like. <br/>
-             Design is how it works."
-           </p>
-           <p className="mt-8 text-[10px] uppercase font-bold tracking-[.4em] text-white/40">- Steve Jobs</p>
-        </section>
-
       </main>
 
       <Footer />

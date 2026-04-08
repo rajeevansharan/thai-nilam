@@ -1,10 +1,10 @@
-# ThaiNilam | EDITION Digital Magazine
+# Thai Nilam | Digital Magazine
 
-ThaiNilam is a premium, minimalist digital magazine platform for high-end editorial content. It features a professional user experience, elegant aesthetics, and efficient management of digital editions.
+Thai Nilam is a premium, minimalist digital magazine platform for high-end editorial content. It features a professional user experience, elegant aesthetics, and efficient management of digital editions.
 
 ## 🚀 Project Overview
 
-The "EDITION" platform provides a sophisticated interface for readers to browse, unlock, and read digital magazine issues. It features a complete frontend ecosystem including a public-facing magazine site and a robust administrative backend.
+The "Thai Nilam" platform provides a sophisticated interface for readers to browse, unlock, and read digital magazine issues. It features a complete frontend ecosystem including a public-facing magazine site and a robust administrative backend.
 
 ## 🛠️ Technology Stack
 
