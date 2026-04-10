@@ -5,6 +5,7 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import IssueManagement from "../components/admin/IssueManagement";
 import UserManagement from "../components/admin/UserManagement";
 import DashboardOverview from "../components/admin/DashboardOverview";
+import PaymentManagement from "../components/admin/PaymentManagement";
 
 interface AdminProps {
   onNavigate?: (page: string) => void;
@@ -26,6 +27,7 @@ const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
           {activeTab === "dashboard" && <DashboardOverview />}
           {activeTab === "issues" && <IssueManagement />}
           {activeTab === "users" && <UserManagement />}
+          {activeTab === "payments" && <PaymentManagement />}
         </main>
       </div>
 

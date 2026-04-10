@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import IssueCard from "../components/IssueCard";
+import PDFReader from "../components/PDFReader";
 import { Filter, ChevronDown, Loader2 } from "lucide-react";
 import { getAllIssues, toggleFavorite } from "../services/issueService";
 
@@ -22,6 +23,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [readerIssue, setReaderIssue] = useState<Issue | null>(null);
 
   const months = [
     "All",
@@ -66,12 +68,18 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
     issueId: string | number,
     currentStatus: boolean,
   ) => {
-    if (!user?.id) {
-      alert("Please login to save favorites.");
+    if (!user) {
+      alert("Please login to save favourites.");
+      onNavigate?.("login");
+      return;
+    }
+    
+    const userId = user.id;
+    if (!userId) {
+      console.error("User ID missing even after login check");
       return;
     }
 
-    // Optimistic UI update
     setIssues(
       issues.map((issue) =>
         issue.id === issueId ? { ...issue, isFavorite: !currentStatus } : issue,
@@ -79,10 +87,9 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
     );
 
     try {
-      await toggleFavorite(user.id, issueId);
+      await toggleFavorite(userId, issueId);
     } catch (error) {
       console.error("Failed to toggle favorite", error);
-      // Revert on failure
       setIssues(
         issues.map((issue) =>
           issue.id === issueId
@@ -93,12 +100,18 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
     }
   };
 
+  const handleRead = (issue: Issue) => {
+    const fullIssue = issues.find(i => i.id === issue.id);
+    if (fullIssue) {
+      setReaderIssue(fullIssue);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <Header activePage="library" onNavigate={onNavigate} />
 
       <main className="max-w-7xl mx-auto px-8 py-16">
-        {/* Title Section */}
         <div className="text-center mb-16">
           <p className="text-[10px] uppercase font-bold tracking-[0.4em] text-[#d4a017] mb-4">
             Complete Collection
@@ -111,7 +124,6 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
             reading instantly.
           </p>
 
-          {/* Filter Bar */}
           <div className="flex items-center justify-center gap-4 mb-20 p-4 bg-white rounded-2xl w-fit mx-auto border border-[#0F172A]/5 shadow-lg shadow-[#0F172A]/5">
             <div className="flex items-center gap-2 px-3 text-[#d4a017]">
               <Filter className="w-4 h-4" />
@@ -154,7 +166,6 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
           </div>
         </div>
 
-        {/* Library Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {loading ? (
             <div className="col-span-full flex flex-col items-center justify-center p-12 text-[#d4a017]">
@@ -179,6 +190,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
                 isUnlocked={issue.isPurchased || user?.role === "ADMIN"}
                 isFavorite={issue.isFavorite}
                 onUnlock={onUnlock}
+                onRead={handleRead}
                 onToggleFavorite={handleToggleFavorite}
                 contentImages={issue.contentImages}
               />
@@ -186,6 +198,13 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
           )}
         </div>
       </main>
+
+      <PDFReader 
+        isOpen={!!readerIssue}
+        onClose={() => setReaderIssue(null)}
+        pdfUrl={readerIssue?.pdfUrl || ""}
+        title={readerIssue?.title || ""}
+      />
 
       <Footer />
     </div>

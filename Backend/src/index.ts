@@ -5,6 +5,7 @@ import path from 'path';
 import issueRoutes from './routes/issueRoutes';
 import userRoutes from './routes/userRoutes';
 import paymentRoutes from './routes/paymentRoutes';
+import purchaseRoutes from './routes/purchaseRoutes';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/issues', issueRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/purchases', purchaseRoutes);
 
 // Basic route for health check
 app.get('/', (req, res) => {

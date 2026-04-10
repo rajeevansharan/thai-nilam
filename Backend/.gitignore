@@ -8,9 +8,6 @@ yarn-error.log*
 # Environment Variables
 .env
 
-# Prisma
-/prisma/migrations/
-
 # Local Uploads
 uploads/
 uploads/pdfs/

@@ -12,6 +12,7 @@ const IssueCard: React.FC<IssueCardProps> = ({
   isPurchased = false,
   isFavorite = false,
   onUnlock,
+  onRead,
   onToggleFavorite,
   contentImages,
 }) => {
@@ -78,9 +79,21 @@ const IssueCard: React.FC<IssueCardProps> = ({
                 description: description!, 
                 price: typeof price === 'number' ? price : parseFloat(price as string), 
                 contentImages: contentImages,
-                year: '', // Added dummy year as it's required in Issue type but not in props
-                imageUrl: image!, // Map image to imageUrl for the Issue type
-                pdfUrl: '', // Dummy pdfUrl
+                year: '', 
+                imageUrl: image!,
+                pdfUrl: '',
+              } as Issue);
+            } else if ((isUnlocked || isPurchased) && onRead) {
+              onRead({
+                id: id!,
+                title: title!,
+                description: description!,
+                month: month!,
+                year: '',
+                imageUrl: image!,
+                pdfUrl: '', // This will be enriched from the source data
+                price: typeof price === 'number' ? price : parseFloat(price as string),
+                contentImages: contentImages,
               } as Issue);
             }
           }}

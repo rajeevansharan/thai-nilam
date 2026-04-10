@@ -20,6 +20,7 @@ interface Issue {
   pdfUrl: string;
   imageUrl: string;
   price: number;
+  contentImages?: { id: number; url: string }[];
   createdAt: string;
 }
 
@@ -32,12 +33,14 @@ const IssueManagement: React.FC = () => {
   // States for file uploads
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [contentImageFiles, setContentImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState({ text: "", type: "" });
   const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const contentImagesInputRef = useRef<HTMLInputElement>(null);
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -83,6 +86,9 @@ const IssueManagement: React.FC = () => {
       formData.append("price", price);
       if (pdfFile) formData.append("pdf", pdfFile);
       if (imageFile) formData.append("image", imageFile);
+      contentImageFiles.forEach(file => {
+        formData.append("contentImages", file);
+      });
 
       if (editingIssue) {
         await updateIssue(editingIssue.id, formData);
@@ -136,6 +142,7 @@ const IssueManagement: React.FC = () => {
   const handleDiscard = () => {
     setPdfFile(null);
     setImageFile(null);
+    setContentImageFiles([]);
     setSelectedMonth("April");
     setSelectedYear("2026");
     setPrice("500.00");
@@ -304,6 +311,74 @@ const IssueManagement: React.FC = () => {
                   <p className="text-xs text-gray-400 mt-1">
                     {imageFile ? "Ready to upload" : "Recommended: 1200x1600px"}
                   </p>
+                </div>
+              </div>
+
+              {/* Content Images Upload */}
+              <div className="space-y-2 text-left md:col-span-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                  Content Preview Images (Up to 5) {editingIssue && <span className="text-amber-500 font-normal lowercase">(Optional: will replace current)</span>}
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  ref={contentImagesInputRef}
+                  onChange={(e) => {
+                    const newFiles = Array.from(e.target.files || []);
+                    setContentImageFiles((prev) => {
+                      const combined = [...prev, ...newFiles];
+                      return combined.slice(0, 5);
+                    });
+                    if (e.target) e.target.value = "";
+                  }}
+                />
+                <div className="space-y-4">
+                  <div
+                    onClick={() => contentImagesInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center bg-gray-50 hover:bg-white hover:border-gray-200 transition-all cursor-pointer group ${contentImageFiles.length >= 5 ? "opacity-50 pointer-events-none" : "border-gray-100"}`}
+                  >
+                    <div className="flex flex-col items-center">
+                      <Plus
+                        className="w-8 h-8 text-gray-300 group-hover:text-amber-500 transition-colors mb-4"
+                        strokeWidth={1.5}
+                      />
+                      <p className="text-sm font-semibold text-gray-900">
+                        {contentImageFiles.length >= 5 ? "Maximum images reached" : "Add Content Image"}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {contentImageFiles.length >= 5 ? "Delete existing to add more" : "Select images one by one (Max 5)"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {contentImageFiles.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      {contentImageFiles.map((file, idx) => (
+                        <div key={idx} className="relative aspect-[4/5] rounded-xl overflow-hidden group shadow-sm border border-gray-100">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Preview ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setContentImageFiles(prev => prev.filter((_, i) => i !== idx));
+                            }}
+                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="absolute bottom-0 inset-x-0 bg-black/40 py-1 px-2">
+                             <p className="text-[8px] text-white truncate font-medium">{file.name}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

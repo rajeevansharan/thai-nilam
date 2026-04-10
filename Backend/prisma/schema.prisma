@@ -58,6 +58,7 @@ model Purchase {
   paidAt          DateTime?      
   amount          Float
   status          PurchaseStatus @default(pending)
+  receiptUrl      String?        
   
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   issue           Issue          @relation(fields: [magazineIssueId], references: [id], onDelete: Cascade)

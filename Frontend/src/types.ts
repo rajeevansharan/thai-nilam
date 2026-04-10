@@ -36,6 +36,7 @@ export interface IssueCardProps {
   isPurchased?: boolean;
   isFavorite?: boolean;
   onUnlock?: (issue: Issue) => void;
+  onRead?: (issue: Issue) => void;
   onToggleFavorite?: (id: string | number, currentStatus: boolean) => void;
   contentImages?: ContentImage[];
 }

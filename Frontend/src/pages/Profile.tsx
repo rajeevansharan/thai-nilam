@@ -13,6 +13,7 @@ import {
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import IssueCard from "../components/IssueCard";
+import PDFReader from "../components/PDFReader";
 import { getFavorites, toggleFavorite } from "../services/issueService";
 import type { User as UserType, Issue } from "../types";
 
@@ -32,6 +33,7 @@ const Profile: React.FC<ProfileProps> = ({
   const [activeTab, setActiveTab] = useState<"account" | "saved">("account");
   const [savedIssues, setSavedIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(false);
+  const [readerIssue, setReaderIssue] = useState<Issue | null>(null);
 
   useEffect(() => {
     if (activeTab === "saved" && user?.id) {
@@ -39,7 +41,7 @@ const Profile: React.FC<ProfileProps> = ({
         setLoading(true);
         try {
           const data = await getFavorites(user.id);
-          setSavedIssues(data);
+          setSavedIssues(data || []);
         } catch (error) {
           console.error("Failed to fetch saved issues", error);
         } finally {
@@ -66,6 +68,13 @@ const Profile: React.FC<ProfileProps> = ({
       await toggleFavorite(user.id, issueId);
     } catch (error) {
       console.error("Failed to toggle favorite", error);
+    }
+  };
+
+  const handleRead = (issue: Issue) => {
+    const fullIssue = savedIssues.find(i => i.id === issue.id);
+    if (fullIssue) {
+      setReaderIssue(fullIssue);
     }
   };
 
@@ -269,6 +278,7 @@ const Profile: React.FC<ProfileProps> = ({
                           isFavorite={true}
                           onToggleFavorite={handleToggleFavorite}
                           onUnlock={onUnlock}
+                          onRead={handleRead}
                           contentImages={issue.contentImages}
                         />
                       </div>
@@ -280,6 +290,13 @@ const Profile: React.FC<ProfileProps> = ({
           </div>
         </div>
       </main>
+
+      <PDFReader 
+        isOpen={!!readerIssue}
+        onClose={() => setReaderIssue(null)}
+        pdfUrl={readerIssue?.pdfUrl || ""}
+        title={readerIssue?.title || ""}
+      />
 
       <Footer />
     </div>

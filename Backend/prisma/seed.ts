@@ -13,24 +13,24 @@ async function main() {
 
   // Create Users
   const user1 = await prisma.user.upsert({
-    where: { email: 'admin@thainilam.com' },
+    where: { email: 'admin@gmail.com' },
     update: {},
     create: {
-      email: 'admin@thainilam.com',
+      email: 'admin@gmail.com',
       name: 'Admin User',
-      password: 'password123', // In a real app, hash this!
+      password: 'test', // In a real app, hash this!
       role: 'ADMIN',
       isPremium: true,
     },
   });
 
   const user2 = await prisma.user.upsert({
-    where: { email: 'user@thainilam.com' },
+    where: { email: 'user@gmail.com' },
     update: {},
     create: {
-      email: 'user@thainilam.com',
+      email: 'user@gmail.com',
       name: 'Regular User',
-      password: 'password123', // In a real app, hash this!
+      password: 'test', // In a real app, hash this!
       role: 'USER',
       isPremium: false,
     },

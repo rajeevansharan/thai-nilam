@@ -1,19 +1,24 @@
 import { Request, Response } from 'express';
 import prisma from '../config/prisma';
+import { uploadFile } from '../services/storageService';
 
 export const createIssue = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, description, month, year } = req.body;
+    const { title, description, month, year, price } = req.body;
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-    const pdfUrl = files['pdf'] ? files['pdf'][0].path : '';
-    const imageUrl = files['image'] ? files['image'][0].path : '';
+    const pdfUrl = files['pdf'] ? await uploadFile(files['pdf'][0], 'pdfs') : '';
+    const imageUrl = files['image'] ? await uploadFile(files['image'][0], 'images') : '';
     const contentImageFiles = files['contentImages'] || [];
 
     if (!pdfUrl || !imageUrl) {
       res.status(400).json({ error: 'PDF and Image are required' });
       return;
     }
+
+    const contentImageUrls = await Promise.all(
+      contentImageFiles.map(file => uploadFile(file, 'images'))
+    );
 
     const issue = await prisma.issue.create({
       data: {
@@ -23,9 +28,10 @@ export const createIssue = async (req: Request, res: Response): Promise<void> =>
         year,
         pdfUrl,
         imageUrl,
+        price: price ? parseFloat(price) : undefined,
         contentImages: {
-          create: contentImageFiles.map(file => ({
-            url: file.path
+          create: contentImageUrls.map(url => ({
+            url
           }))
         }
       },
@@ -91,6 +97,7 @@ export const getRecentIssues = async (req: Request, res: Response): Promise<void
       take: 3,
       orderBy: { createdAt: 'desc' },
       include: {
+        contentImages: true,
         favorites: userId ? {
           where: { userId }
         } : false,
@@ -129,8 +136,26 @@ export const updateIssue = async (req: Request, res: Response): Promise<void> =>
     };
 
     if (files) {
-      if (files['pdf']?.[0]) updateData.pdfUrl = files['pdf'][0].path;
-      if (files['image']?.[0]) updateData.imageUrl = files['image'][0].path;
+      if (files['pdf']?.[0]) updateData.pdfUrl = await uploadFile(files['pdf'][0], 'pdfs');
+      if (files['image']?.[0]) updateData.imageUrl = await uploadFile(files['image'][0], 'images');
+      
+      if (files['contentImages']) {
+        const contentImageFiles = files['contentImages'];
+        const contentImageUrls = await Promise.all(
+          contentImageFiles.map(file => uploadFile(file, 'images'))
+        );
+        
+        // Delete old content images first
+        await prisma.contentImage.deleteMany({
+          where: { issueId: parseInt(id as any) }
+        });
+
+        updateData.contentImages = {
+          create: contentImageUrls.map(url => ({
+            url
+          }))
+        };
+      }
     }
 
     const updatedIssue = await prisma.issue.update({

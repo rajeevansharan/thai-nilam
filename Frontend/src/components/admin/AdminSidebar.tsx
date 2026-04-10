@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, FileUp, Settings, LayoutDashboard } from "lucide-react";
+import { Users, FileUp, Settings, LayoutDashboard, CreditCard } from "lucide-react";
 
 interface AdminSidebarProps {
   activeTab: string;
@@ -35,6 +35,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
         className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === "users" ? "bg-[#0F172A] text-white shadow-xl" : "text-gray-500 hover:bg-gray-50"}`}
       >
         <Users className="w-4 h-4" /> User Management
+      </button>
+
+      <button
+        onClick={() => setActiveTab("payments")}
+        className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === "payments" ? "bg-[#0F172A] text-white shadow-xl" : "text-gray-500 hover:bg-gray-50"}`}
+      >
+        <CreditCard className="w-4 h-4" /> Payment Requests
       </button>
 
       <div className="pt-10 border-t border-gray-50 mt-10">

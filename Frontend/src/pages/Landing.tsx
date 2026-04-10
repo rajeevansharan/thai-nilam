@@ -1,59 +1,100 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { motion } from "framer-motion";
 import logo from "@/assets/logoV2.png";
 
 const Landing = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: [0.33, 1, 0.68, 1] as any }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-navy-gradient overflow-x-hidden">
-
       {/* Hero */}
       <section className="relative">
         <div className="bg-navy-gradient min-h-screen">
-          <div className="container mx-auto px-6 py-24 md:py-24 flex flex-col items-center text-center">
-            <div className="animate-fade-up">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="container mx-auto px-6 py-24 md:py-24 flex flex-col items-center text-center"
+          >
+            <motion.div variants={itemVariants}>
               <div className="relative inline-block group">
                 <div className="absolute inset-0 bg-accent/20 blur-3xl rounded-full scale-110 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <img
+                <motion.img
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   src={logo}
                   alt="Thai Nilam Logo"
-                  className="h-48 md:h-72 w-auto object-contain mx-auto drop-shadow-[0_0_30px_rgba(212,160,23,0.2)] animate-float"
+                  className="h-48 md:h-72 w-auto object-contain mx-auto drop-shadow-[0_0_30px_rgba(212,160,23,0.2)]"
                 />
               </div>
-            </div>
+            </motion.div>
 
-
-            <div className="mx-auto mt-12 mb-12 flex items-center gap-8 animate-fade-up" style={{ animationDelay: "0.2s" }}>
+            <motion.div 
+              variants={itemVariants}
+              className="mx-auto mt-12 mb-12 flex items-center gap-8"
+            >
               <div className="h-px w-24 bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
-              <div className="h-3 w-3 rotate-45 bg-accent shadow-[0_0_15px_rgba(212,160,23,0.6)] animate-pulse" />
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="h-3 w-3 rotate-45 bg-accent shadow-[0_0_15px_rgba(212,160,23,0.6)]" 
+              />
               <div className="h-px w-24 bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
-            </div>
+            </motion.div>
 
             {/* Vision */}
-            <div className="mt-2 mb-8 animate-fade-up" style={{ animationDelay: "0.25s" }}>
+            <motion.div variants={itemVariants} className="mt-2 mb-8">
                <p className="font-serif italic text-3xl md:text-3xl text-white font-semibold leading-tight max-w-4xl mx-auto drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
                  <span className="text-accent text-5xl md:text-4xl align-top leading-none mr-2">"</span>
                  பாதையைத் தேடாதே அதை உருவாக்கு...!
                  <span className="text-accent text-5xl md:text-4xl align-bottom leading-none ml-2">"</span>
                </p>
                <div className="h-1.5 w-32 bg-gradient-to-r from-transparent via-accent/50 to-transparent rounded-full mx-auto mt-8 shadow-[0_0_20px_rgba(212,160,23,0.3)]" />
-            </div>
+            </motion.div>
 
             {/* Login & Register Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12 animate-fade-up" style={{ animationDelay: "0.3s" }}>
-              <Link to="/login">
-                <button className="min-w-[180px] px-8 py-3.5 rounded-full border border-white/30 text-white font-semibold hover:bg-white/10 transition-all backdrop-blur-md hover:scale-105 active:scale-95">
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
+              <Link to="/login" state={{ mode: 'login' }}>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="min-w-[180px] px-8 py-3.5 rounded-full border border-white/30 text-white font-semibold hover:bg-white/10 transition-all backdrop-blur-md"
+                >
                   Member Login
-                </button>
+                </motion.button>
               </Link>
-              <Link to="/login">
-                <button className="min-w-[180px] px-8 py-3.5 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full font-bold transition-all shadow-xl shadow-accent/40 transform hover:scale-105 active:scale-95">
+              <Link to="/login" state={{ mode: 'register' }}>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="min-w-[180px] px-8 py-3.5 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full font-bold transition-all shadow-xl shadow-accent/40"
+                >
                   Register Now
-                </button>
+                </motion.button>
               </Link>
-            </div>
+            </motion.div>
 
             {/* Professional Contact Bar */}
-            <div className="mt-2 w-full max-w-8xl animate-fade-up" style={{ animationDelay: "0.4s" }}>
+            <motion.div variants={itemVariants} className="mt-2 w-full max-w-8xl">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-8 px-6 bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 shadow-2xl">
                 {[
                   { icon: Mail, value: "thaainilampublications@gmail.com" },
@@ -68,8 +109,8 @@ const Landing = () => {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 

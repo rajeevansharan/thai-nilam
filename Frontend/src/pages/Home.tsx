@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import Hero from "../components/Hero";
 import IssueCard from "../components/IssueCard";
 import Footer from "../components/Footer";
+import PDFReader from "../components/PDFReader";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { toggleFavorite } from "../services/issueService";
 import type { User, Issue } from "../types";
@@ -16,6 +17,7 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [readerIssue, setReaderIssue] = useState<Issue | null>(null);
 
   useEffect(() => {
     const fetchRecent = async () => {
@@ -38,13 +40,18 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
     issueId: string | number,
     currentStatus: boolean
   ) => {
-    if (!user?.id) {
-      alert("Please login to save favorites.");
+    if (!user) {
+      alert("Please login to save favourites.");
       onNavigate?.("login");
       return;
     }
+    
+    const userId = user.id;
+    if (!userId) {
+      console.error("User ID missing even after login check");
+      return;
+    }
 
-    // Optimistic UI update
     setIssues((prev) =>
       prev.map((issue) =>
         issue.id === issueId ? { ...issue, isFavorite: !currentStatus } : issue
@@ -52,15 +59,21 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
     );
 
     try {
-      await toggleFavorite(user.id, issueId);
+      await toggleFavorite(userId, issueId);
     } catch (error) {
       console.error("Failed to toggle favorite", error);
-      // Revert on failure
       setIssues((prev) =>
         prev.map((issue) =>
           issue.id === issueId ? { ...issue, isFavorite: currentStatus } : issue
         )
       );
+    }
+  };
+
+  const handleRead = (issue: Issue) => {
+    const fullIssue = issues.find(i => i.id === issue.id);
+    if (fullIssue) {
+      setReaderIssue(fullIssue);
     }
   };
 
@@ -77,7 +90,6 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
       <main>
         <Hero />
         
-        {/* Past Issues Section */}
         <section className="px-8 mt-24">
           <div className="flex items-end justify-between mb-12 max-w-7xl mx-auto">
             <div className="text-left">
@@ -123,6 +135,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
                   }
                   isFavorite={issue.isFavorite}
                   onUnlock={onUnlock}
+                  onRead={handleRead}
                   onToggleFavorite={handleToggleFavorite}
                   contentImages={issue.contentImages}
                 />
@@ -130,8 +143,14 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
             )}
           </div>
         </section>
-
       </main>
+
+      <PDFReader 
+        isOpen={!!readerIssue}
+        onClose={() => setReaderIssue(null)}
+        pdfUrl={readerIssue?.pdfUrl || ""}
+        title={readerIssue?.title || ""}
+      />
 
       <Footer />
     </div>

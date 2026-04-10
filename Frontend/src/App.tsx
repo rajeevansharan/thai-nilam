@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
@@ -13,18 +13,31 @@ import "./App.css";
 import type { User, Issue } from "./types";
 
 function App() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem("thai_nilam_user");
+    if (savedUser) {
+      try {
+        return JSON.parse(savedUser);
+      } catch (err) {
+        console.error("Failed to restore session", err);
+        return null;
+      }
+    }
+    return null;
+  });
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if user is logged in (from localStorage or similar if needed)
-    // For now, staying simple.
-  }, []);
-
   const handleLogin = (userData: User) => {
-    setUser(userData);
-    if (userData.role === "ADMIN") {
+    // Map _id or other common ID fields if necessary
+    const normalizedUser = {
+      ...userData,
+      id: userData.id || (userData as any)._id || (userData as any).userId
+    };
+    setUser(normalizedUser);
+    localStorage.setItem("thai_nilam_user", JSON.stringify(normalizedUser));
+    
+    if (normalizedUser.role === "ADMIN") {
       navigate("/admin");
     } else {
       navigate("/home");
@@ -37,6 +50,7 @@ function App() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("thai_nilam_user");
     setUser(null);
     navigate("/");
   };

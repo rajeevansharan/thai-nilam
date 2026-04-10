@@ -1,6 +1,39 @@
 import { Request, Response } from 'express';
 import prisma from '../config/prisma';
 
+export const register = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, email, password } = req.body;
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      res.status(400).json({ error: 'User already exists' });
+      return;
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password, // Using plain text as per existing pattern
+      },
+    });
+
+    res.status(201).json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      isPremium: user.isPremium,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Registration failed' });
+  }
+};
+
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
@@ -105,5 +138,44 @@ export const getFavorites = async (req: Request, res: Response): Promise<void> =
   } catch (error) {
     console.error('Fetch favorites error:', error);
     res.status(500).json({ error: 'Failed to fetch favorites' });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await prisma.user.delete({
+      where: { id: Number(id) }
+    });
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+};
+
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { role, isPremium } = req.body;
+    
+    const updatedUser = await prisma.user.update({
+      where: { id: Number(id) },
+      data: {
+        role,
+        isPremium
+      },
+      select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          isPremium: true,
+          createdAt: true,
+      }
+    });
+
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update user' });
   }
 };

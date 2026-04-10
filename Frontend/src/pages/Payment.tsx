@@ -11,7 +11,12 @@ import {
   Calendar,
   User as UserIcon,
   CreditCard as CardIcon,
+  FileUp,
+  Image as ImageIcon,
+  AlertCircle
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { uploadReceipt } from "../services/purchaseService";
 
 interface PaymentProps {
   onNavigate: (page: string) => void;
@@ -22,6 +27,9 @@ interface PaymentProps {
 const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
   const [step, setStep] = useState(1); // 1: Checkout, 2: Success
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'receipt'>('card');
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   // Form State
   const [cardName, setCardName] = useState("");
@@ -31,7 +39,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
 
   useEffect(() => {
     if (!issue) {
-      onNavigate("home");
+      onNavigate("library");
     }
     window.scrollTo(0, 0);
   }, [issue]);
@@ -65,7 +73,14 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
     return v;
   };
 
-  const handleSimulatedPayment = async (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setReceiptFile(e.target.files[0]);
+      setError(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
       onNavigate("login");
@@ -75,28 +90,31 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
     setLoading(true);
     setError(null);
 
-    // Simulate network delay
-    setTimeout(() => {
-      setLoading(false);
-      setStep(2);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 2500);
-  };
-
-  // Keep original logic as reference but not used in the new UI flow
-  /*
-  const handleRealPayment = async () => {
-    if (!user) { onNavigate("login"); return; }
-    setLoading(true);
     try {
-      const paymentParams = await initiatePayment(user.id, issue.id);
-      window.payhere.startPayment(paymentParams);
+      if (paymentMethod === 'receipt') {
+        if (!receiptFile) {
+          setError("Please upload a receipt file.");
+          setLoading(false);
+          return;
+        }
+        await uploadReceipt(user.id, issue.id, issue.price || 500, receiptFile);
+        setStep(2);
+      } else {
+        // Simulating card payment success for now
+        setTimeout(() => {
+          setLoading(false);
+          setStep(2);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 2000);
+        return;
+      }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to initiate payment.");
-      setLoading(false);
+      setError("Failed to process payment. Please try again.");
+      console.error(err);
+    } finally {
+      if (paymentMethod === 'receipt') setLoading(false);
     }
   };
-  */
 
   return (
     <div className="min-h-screen bg-[#FBF9F4] flex flex-col font-sans">
@@ -114,86 +132,168 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                 
                 {/* Left: Payment Form Card */}
                 <div className="lg:col-span-8 h-full">
-                  <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-10 md:p-12 h-full">
-                    <form onSubmit={handleSimulatedPayment} className="space-y-10">
+                  <motion.div 
+                    layout
+                    className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-10 md:p-12 h-full"
+                  >
+                    <form onSubmit={handleSubmit} className="space-y-10">
                       <div>
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d4a017] mb-5">Select Payment Method</p>
-                        <div className="w-full">
+                        <div className="flex flex-col md:flex-row gap-4">
                           <button
                             type="button"
-                            className="w-full md:w-1/2 p-4 rounded-xl border-[1.5px] border-[#d4a017] bg-white transition-all flex flex-col items-center justify-center gap-1 group shadow-sm"
+                            onClick={() => setPaymentMethod('card')}
+                            className={`flex-1 p-5 rounded-xl border-[1.5px] transition-all flex flex-col items-center justify-center gap-1.5 group ${
+                              paymentMethod === 'card' 
+                              ? 'border-[#d4a017] bg-[#fffcf0]' 
+                              : 'border-gray-100 bg-white hover:border-[#d4a017]/30'
+                            }`}
                           >
-                            <CardIcon className="w-6 h-6 text-[#1e293b]" />
-                            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#1e293b]">Card</span>
+                            <CardIcon className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-[#d4a017]' : 'text-gray-400'}`} />
+                            <span className={`text-[10px] font-bold uppercase tracking-[0.25em] ${paymentMethod === 'card' ? 'text-[#d4a017]' : 'text-gray-500'}`}>Card</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setPaymentMethod('receipt')}
+                            className={`flex-1 p-5 rounded-xl border-[1.5px] transition-all flex flex-col items-center justify-center gap-1.5 group ${
+                              paymentMethod === 'receipt' 
+                              ? 'border-[#d4a017] bg-[#fffcf0]' 
+                              : 'border-gray-100 bg-white hover:border-[#d4a017]/30'
+                            }`}
+                          >
+                            <FileUp className={`w-6 h-6 ${paymentMethod === 'receipt' ? 'text-[#d4a017]' : 'text-gray-400'}`} />
+                            <span className={`text-[10px] font-bold uppercase tracking-[0.25em] ${paymentMethod === 'receipt' ? 'text-[#d4a017]' : 'text-gray-500'}`}>Upload Receipt</span>
                           </button>
                         </div>
                       </div>
 
-                      <div className="space-y-6">
-                        <div className="space-y-3">
-                          <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">Cardholder Name</label>
-                          <div className="relative group">
-                            <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
-                            <input 
-                              required
-                              type="text"
-                              placeholder="J. Smith"
-                              value={cardName}
-                              onChange={(e) => setCardName(e.target.value)}
-                              className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-3">
-                          <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">Card Number</label>
-                          <div className="relative group">
-                            <CardIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
-                            <input 
-                              required
-                              type="text"
-                              placeholder="0000 0000 0000 0000"
-                              maxLength={19}
-                              value={cardNumber}
-                              onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                              className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-3">
-                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">Expiry Date</label>
-                            <div className="relative group">
-                              <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
-                              <input 
-                                required
-                                type="text"
-                                placeholder="MM/YY"
-                                maxLength={5}
-                                value={expiry}
-                                onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-                                className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
-                              />
+                      <AnimatePresence mode="wait">
+                        {paymentMethod === 'card' ? (
+                          <motion.div 
+                            key="card-form"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            className="space-y-6"
+                          >
+                            <div className="space-y-3">
+                              <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">Cardholder Name</label>
+                              <div className="relative group">
+                                <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
+                                <input 
+                                  required={paymentMethod === 'card'}
+                                  type="text"
+                                  placeholder="J. Smith"
+                                  value={cardName}
+                                  onChange={(e) => setCardName(e.target.value)}
+                                  className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
+                                />
+                              </div>
                             </div>
-                          </div>
-                          <div className="space-y-3">
-                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">CVV</label>
-                            <div className="relative group">
-                              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
-                              <input 
-                                required
-                                type="password"
-                                placeholder=". . ."
-                                maxLength={3}
-                                value={cvv}
-                                onChange={(e) => setCvv(e.target.value.replace(/[^0-9]/g, ""))}
-                                className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
-                              />
+
+                            <div className="space-y-3">
+                              <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">Card Number</label>
+                              <div className="relative group">
+                                <CardIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
+                                <input 
+                                  required={paymentMethod === 'card'}
+                                  type="text"
+                                  placeholder="0000 0000 0000 0000"
+                                  maxLength={19}
+                                  value={cardNumber}
+                                  onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                                  className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
+                                />
+                              </div>
                             </div>
-                          </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-3">
+                                <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">Expiry Date</label>
+                                <div className="relative group">
+                                  <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
+                                  <input 
+                                    required={paymentMethod === 'card'}
+                                    type="text"
+                                    placeholder="MM/YY"
+                                    maxLength={5}
+                                    value={expiry}
+                                    onChange={(e) => setExpiry(formatExpiry(e.target.value))}
+                                    className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-3">
+                                <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] ml-1">CVV</label>
+                                <div className="relative group">
+                                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8] group-focus-within:text-[#1e293b] transition-colors" />
+                                  <input 
+                                    required={paymentMethod === 'card'}
+                                    type="password"
+                                    placeholder=". . ."
+                                    maxLength={3}
+                                    value={cvv}
+                                    onChange={(e) => setCvv(e.target.value.replace(/[^0-9]/g, ""))}
+                                    className="w-full bg-[#f8fafc] border border-transparent focus:border-[#e2e8f0] focus:bg-white rounded-xl pl-14 pr-6 py-5 text-sm transition-all focus:outline-none placeholder:text-[#cbd5e1] text-[#1e293b] font-medium"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ) : (
+                          <motion.div 
+                            key="receipt-form"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            className="space-y-6"
+                          >
+                            <div className="p-8 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                              <div className="flex flex-col items-center text-center gap-4">
+                                <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center">
+                                  {receiptFile ? (
+                                    <CheckCircle className="w-8 h-8 text-green-500" />
+                                  ) : (
+                                    <ImageIcon className="w-8 h-8 text-slate-400" />
+                                  )}
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-700">
+                                    {receiptFile ? receiptFile.name : "Select your receipt file"}
+                                  </h4>
+                                  <p className="text-[11px] text-slate-500 mt-1 max-w-xs">
+                                    Upload a photo or PDF of your bank transfer or manual payment proof.
+                                  </p>
+                                </div>
+                                <label className="cursor-pointer bg-white border border-slate-200 px-6 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
+                                  {receiptFile ? "Change File" : "Choose File"}
+                                  <input 
+                                    type="file" 
+                                    className="hidden" 
+                                    accept="image/*,application/pdf"
+                                    onChange={handleFileChange}
+                                  />
+                                </label>
+                              </div>
+                            </div>
+                            
+                            <div className="p-5 bg-[#fffcf0] border border-[#d4a017]/20 rounded-2xl flex gap-3">
+                              <AlertCircle className="w-4 h-4 text-[#d4a017] shrink-0" />
+                              <p className="text-[11px] text-[#86660d] leading-relaxed">
+                                Note: Our team will review your receipt and grant access within 2-4 hours. You'll receive a notification once approved.
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {error && (
+                        <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex gap-3 items-center">
+                          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                          <p className="text-xs text-red-600 font-medium">{error}</p>
                         </div>
-                      </div>
+                      )}
 
                       <button
                         type="submit"
@@ -203,17 +303,17 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                         {loading ? (
                           <>
                             <Loader2 className="w-5 h-5 animate-spin text-[#d4a017]" />
-                            Processing Purchase...
+                            {paymentMethod === 'receipt' ? "Uploading Receipt..." : "Processing Purchase..."}
                           </>
                         ) : (
                           <>
-                            Complete Purchase
-                            <ShieldCheck className="w-5 h-5 opacity-90" />
+                            {paymentMethod === 'receipt' ? "Submit for Approval" : "Complete Purchase"}
+                            <ArrowRight className="w-5 h-5 opacity-90" />
                           </>
                         )}
                       </button>
                     </form>
-                  </div>
+                  </motion.div>
                 </div>
 
                 {/* Right: Summary Side Side */}
@@ -251,7 +351,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                       <div className="flex items-start gap-3 p-5 bg-[#fffcf0] rounded-2xl border border-[#fff1bd]">
                         <ShieldCheck className="w-4 h-4 text-[#d4a017] shrink-0 mt-0.5" />
                         <p className="text-[11px] text-[#86660d] font-medium leading-relaxed opacity-80">
-                          Your payment is protected with 256-bit SSL encryption. All transactions are secure and private.
+                          Your payment information is protected with 256-bit SSL encryption. All transactions are secure and private.
                         </p>
                       </div>
                       <div className="flex items-center justify-center gap-6 saturate-0 opacity-40">
@@ -278,12 +378,17 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
             <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner">
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
-            <p className="text-[10px] uppercase font-bold tracking-[0.4em] text-green-600 mb-4">Transaction Successful</p>
+            <p className="text-[10px] uppercase font-bold tracking-[0.4em] text-green-600 mb-4">
+              {paymentMethod === 'receipt' ? "Submission Successful" : "Transaction Successful"}
+            </p>
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#0F172A] mb-6">
-              Unlock Complete!
+              {paymentMethod === 'receipt' ? "Receipt Received!" : "Unlock Complete!"}
             </h2>
             <p className="text-gray-500 mb-12 leading-relaxed italic font-serif text-lg max-w-sm mx-auto">
-              You now have full access to <span className="text-[#d4a017] font-bold">"{issue.title}"</span>. The content is waiting for you in your library.
+              {paymentMethod === 'receipt' 
+                ? `Your proof of payment for "${issue.title}" has been submitted. Our team will review it shortly. Check your library once it's approved.`
+                : `You now have full access to "${issue.title}". The content is waiting for you in your library.`
+              }
             </p>
 
             <div className="space-y-4 flex flex-col sm:flex-row gap-4 sm:space-y-0">
@@ -291,7 +396,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                 onClick={() => onNavigate("library")}
                 className="flex-1 py-5 bg-[#0F172A] text-white rounded-2xl font-bold text-sm hover:bg-black transition-all flex items-center justify-center gap-3 shadow-xl"
               >
-                Go to My Library
+                {paymentMethod === 'receipt' ? "Check Status" : "Go to My Library"}
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button

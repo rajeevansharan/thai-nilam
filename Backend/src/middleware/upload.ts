@@ -1,31 +1,7 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 
-// Ensure upload directories exist
-const uploadDir = 'uploads/';
-const pdfDir = 'uploads/pdfs/';
-const imageDir = 'uploads/images/';
-
-[uploadDir, pdfDir, imageDir].forEach(dir => {
-  if (!fs.existsSync(dir)){
-      fs.mkdirSync(dir, { recursive: true });
-  }
-});
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    if (file.mimetype === 'application/pdf') {
-      cb(null, pdfDir);
-    } else {
-      cb(null, imageDir);
-    }
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Use memory storage to process file buffers for Supabase upload
+const storage = multer.memoryStorage();
 
 const fileFilter = (req: any, file: any, cb: any) => {
   if (file.mimetype === 'application/pdf' || file.mimetype.startsWith('image/')) {

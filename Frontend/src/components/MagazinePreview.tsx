@@ -1,8 +1,22 @@
 import React from "react";
 import { Lock, ShieldCheck } from "lucide-react";
 
+interface ContentImage {
+  id: number;
+  url: string;
+}
+
+interface Issue {
+  title: string;
+  description: string;
+  month: string;
+  year: string;
+  image: string;
+  contentImages?: ContentImage[];
+}
+
 interface MagazinePreviewProps {
-  issue: any;
+  issue: Issue;
 }
 
 const MagazinePreview: React.FC<MagazinePreviewProps> = ({ issue }) => {
@@ -51,48 +65,38 @@ const MagazinePreview: React.FC<MagazinePreviewProps> = ({ issue }) => {
       </div>
 
       {/* Content Preview Images */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-          <h2 className="text-2xl font-serif font-bold text-[#0F172A]">
-            Inside this Thai Nilam
-          </h2>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#d4a017] bg-[#d4a017]/5 px-3 py-1 rounded-md">
-            Sneak Peek
-          </span>
-        </div>
+      {issue.contentImages && issue.contentImages.length > 0 && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+            <h2 className="text-2xl font-serif font-bold text-[#0F172A]">
+              Inside this Thai Nilam
+            </h2>
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[#d4a017] bg-[#d4a017]/5 px-3 py-1 rounded-md">
+              Sneak Peek
+            </span>
+          </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {issue.contentImages && issue.contentImages.length > 0
-            ? issue.contentImages.map((img: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-50 shadow-md transform transition-all hover:scale-[1.03] hover:shadow-xl border border-gray-100 group"
-                >
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
-                  <img
-                    src={
-                      img.url.startsWith("http")
-                        ? img.url
-                        : `http://localhost:5000/${img.url.replace(/\\/g, "/")}`
-                    }
-                    alt={`Preview ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))
-            : // Fallback placeholders if no content images found
-              [1, 2, 3, 4].map((_, idx) => (
-                <div
-                  key={idx}
-                  className="aspect-[4/5] rounded-2xl bg-gray-50 flex items-center justify-center border-2 border-dashed border-gray-200"
-                >
-                  <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-                    Preview {idx + 1}
-                  </span>
-                </div>
-              ))}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {issue.contentImages.map((img: ContentImage, idx: number) => (
+              <div
+                key={idx}
+                className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-50 shadow-md transform transition-all hover:scale-[1.03] hover:shadow-xl border border-gray-100 group relative"
+              >
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
+                <img
+                  src={
+                    img.url.startsWith("http")
+                      ? img.url
+                      : `http://localhost:5000/${img.url.replace(/\\/g, "/")}`
+                  }
+                  alt={`Preview ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
