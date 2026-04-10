@@ -101,9 +101,12 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
   };
 
   const handleRead = (issue: Issue) => {
-    const fullIssue = issues.find(i => i.id === issue.id);
+    // Robust finding using string comparison to avoid number vs string ID issues
+    const fullIssue = issues.find(i => String(i.id) === String(issue.id));
     if (fullIssue) {
       setReaderIssue(fullIssue);
+    } else {
+      console.warn("Issue not found in library list:", issue.id);
     }
   };
 
@@ -111,34 +114,34 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
     <div className="min-h-screen bg-[#F8FAFC]">
       <Header activePage="library" onNavigate={onNavigate} />
 
-      <main className="max-w-7xl mx-auto px-8 py-16">
-        <div className="text-center mb-16">
-          <p className="text-[10px] uppercase font-bold tracking-[0.4em] text-[#d4a017] mb-4">
+      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-10 md:py-16">
+        <div className="text-center mb-10 md:mb-16">
+          <p className="text-[9px] md:text-[10px] uppercase font-bold tracking-[0.3em] md:tracking-[0.4em] text-[#d4a017] mb-3 md:mb-4">
             Complete Collection
           </p>
-          <h1 className="text-5xl font-serif font-bold text-[#0F172A] mb-6 shadow-sm shadow-white/50">
+          <h1 className="text-3xl md:text-5xl font-serif font-bold text-[#0F172A] mb-4 md:mb-6 shadow-sm shadow-white/50">
             Issues Library
           </h1>
-          <p className="max-w-xl mx-auto text-gray-500 font-light leading-relaxed mb-12 italic">
+          <p className="max-w-xl mx-auto text-sm md:text-base text-gray-500 font-light leading-relaxed mb-8 md:mb-12 italic px-4">
             Browse our archive of monthly Thai Nilam issues. Unlock any issue to start
             reading instantly.
           </p>
 
-          <div className="flex items-center justify-center gap-4 mb-20 p-4 bg-white rounded-2xl w-fit mx-auto border border-[#0F172A]/5 shadow-lg shadow-[#0F172A]/5">
-            <div className="flex items-center gap-2 px-3 text-[#d4a017]">
-              <Filter className="w-4 h-4" />
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#0F172A]">
-                Filter By
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-12 md:mb-20 p-2 md:p-4 bg-white rounded-2xl w-fit mx-auto border border-[#0F172A]/5 shadow-lg shadow-[#0F172A]/5">
+            <div className="flex items-center gap-2 px-2 md:px-3 text-[#d4a017]">
+              <Filter className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className="text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-[#0F172A]">
+                Filter
               </span>
             </div>
 
-            <div className="h-6 w-px bg-gray-100 mx-2"></div>
+            <div className="h-6 w-px bg-gray-100 mx-1 md:mx-2 hidden sm:block"></div>
 
             <div className="relative group">
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="appearance-none bg-transparent pl-4 pr-10 py-2 text-sm font-bold text-[#0F172A] focus:outline-none cursor-pointer"
+                className="appearance-none bg-transparent pl-3 pr-8 md:pl-4 md:pr-10 py-1.5 md:py-2 text-[11px] md:text-sm font-bold text-[#0F172A] focus:outline-none cursor-pointer"
               >
                 {months.map((m) => (
                   <option key={m} value={m}>
@@ -146,14 +149,14 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d4a017] pointer-events-none transition-transform group-hover:translate-y-[-40%]" />
+              <ChevronDown className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#d4a017] pointer-events-none transition-transform group-hover:translate-y-[-40%]" />
             </div>
 
             <div className="relative group">
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="appearance-none bg-transparent pl-4 pr-10 py-2 text-sm font-bold text-[#0F172A] focus:outline-none cursor-pointer"
+                className="appearance-none bg-transparent pl-3 pr-8 md:pl-4 md:pr-10 py-1.5 md:py-2 text-[11px] md:text-sm font-bold text-[#0F172A] focus:outline-none cursor-pointer"
               >
                 {years.map((y) => (
                   <option key={y} value={y}>
@@ -161,12 +164,12 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#d4a017] pointer-events-none transition-transform group-hover:translate-y-[-40%]" />
+              <ChevronDown className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#d4a017] pointer-events-none transition-transform group-hover:translate-y-[-40%]" />
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {loading ? (
             <div className="col-span-full flex flex-col items-center justify-center p-12 text-[#d4a017]">
               <Loader2 className="w-8 h-8 animate-spin mb-4" />
@@ -199,12 +202,13 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
         </div>
       </main>
 
-      <PDFReader 
-        isOpen={!!readerIssue}
-        onClose={() => setReaderIssue(null)}
-        pdfUrl={readerIssue?.pdfUrl || ""}
-        title={readerIssue?.title || ""}
-      />
+      {readerIssue && (
+        <PDFReader 
+          onClose={() => setReaderIssue(null)}
+          pdfUrl={readerIssue.pdfUrl}
+          issueTitle={readerIssue.title}
+        />
+      )}
 
       <Footer />
     </div>

@@ -71,7 +71,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
   };
 
   const handleRead = (issue: Issue) => {
-    const fullIssue = issues.find(i => i.id === issue.id);
+    const fullIssue = issues.find(i => String(i.id) === String(issue.id));
     if (fullIssue) {
       setReaderIssue(fullIssue);
     }
@@ -90,26 +90,26 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
       <main>
         <Hero />
         
-        <section className="px-8 mt-24">
-          <div className="flex items-end justify-between mb-12 max-w-7xl mx-auto">
+        <section className="px-4 sm:px-8 mt-16 md:mt-24">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 md:mb-12 max-w-7xl mx-auto gap-4">
             <div className="text-left">
-              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-[#d4a017] mb-2">
+              <p className="text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] md:tracking-[0.3em] text-[#d4a017] mb-2">
                 Available Now
               </p>
-              <h2 className="text-4xl font-serif font-bold text-[#0F172A]">
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#0F172A]">
                 Recent Issues
               </h2>
             </div>
             <button
               onClick={() => onNavigate?.("library")}
-              className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#d4a017] hover:text-[#b8860b] transition-colors group"
+              className="flex items-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#d4a017] hover:text-[#b8860b] transition-colors group"
             >
               View all
               <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-12 max-w-7xl mx-auto">
             {loading ? (
               <div className="col-span-full flex flex-col items-center justify-center p-12 text-[#d4a017]">
                 <Loader2 className="w-8 h-8 animate-spin mb-4" />
@@ -145,12 +145,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
         </section>
       </main>
 
-      <PDFReader 
-        isOpen={!!readerIssue}
-        onClose={() => setReaderIssue(null)}
-        pdfUrl={readerIssue?.pdfUrl || ""}
-        title={readerIssue?.title || ""}
-      />
+      {readerIssue && (
+        <PDFReader 
+          onClose={() => setReaderIssue(null)}
+          pdfUrl={readerIssue?.pdfUrl || ""}
+          issueTitle={readerIssue?.title || ""}
+        />
+      )}
 
       <Footer />
     </div>

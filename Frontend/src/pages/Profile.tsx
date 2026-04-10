@@ -72,7 +72,7 @@ const Profile: React.FC<ProfileProps> = ({
   };
 
   const handleRead = (issue: Issue) => {
-    const fullIssue = savedIssues.find(i => i.id === issue.id);
+    const fullIssue = savedIssues.find(i => String(i.id) === String(issue.id));
     if (fullIssue) {
       setReaderIssue(fullIssue);
     }
@@ -88,64 +88,92 @@ const Profile: React.FC<ProfileProps> = ({
     <div className="min-h-screen bg-[#F8FAFC]">
       <Header activePage="profile" onNavigate={onNavigate} />
 
-      <main className="max-w-[1400px] mx-auto px-8 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+      <main className="max-w-[1400px] mx-auto px-4 sm:px-8 py-10 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12">
           {/* Sidebar / User Info */}
-          <div className="lg:col-span-1 bg-white/30 backdrop-blur-sm rounded-3xl p-8 border border-gray-50 shadow-sm h-fit">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-full space-y-3">
+          <div className="lg:col-span-1">
+            {/* Desktop Sidebar (hidden on mobile) */}
+            <div className="hidden lg:block bg-white/30 backdrop-blur-sm rounded-3xl p-8 border border-gray-50 shadow-sm h-fit space-y-3">
+              <button
+                onClick={() => setActiveTab("account")}
+                className={`flex items-center justify-between w-full px-6 py-4 rounded-xl text-xs font-bold transition-all border shadow-sm ${activeTab === "account" ? "bg-[#0F172A] text-white shadow-xl translate-x-2" : "text-gray-400 hover:text-[#0F172A] bg-white hover:border-[#d4a017]/20"}`}
+              >
+                <span className="flex items-center gap-4">
+                  <User
+                    className={`w-4 h-4 ${activeTab === "account" ? "text-[#d4a017]" : "opacity-40"}`}
+                  />{" "}
+                  Account Details
+                </span>
+                {activeTab === "account" && (
+                  <ChevronRight className="w-3 h-3 opacity-50" />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab("saved")}
+                className={`flex items-center justify-between w-full px-6 py-4 rounded-xl text-xs font-bold transition-all border shadow-sm ${activeTab === "saved" ? "bg-[#0F172A] text-white shadow-xl translate-x-2" : "text-gray-400 hover:text-[#0F172A] bg-white hover:border-[#d4a017]/20"}`}
+              >
+                <span className="flex items-center gap-4">
+                  <Heart
+                    className={`w-4 h-4 ${activeTab === "saved" ? "text-[#d4a017]" : "opacity-40"}`}
+                  />{" "}
+                  Favourites
+                </span>
+                {activeTab === "saved" && (
+                  <ChevronRight className="w-3 h-3 opacity-50" />
+                )}
+              </button>
+              <button className="flex items-center justify-between w-full px-6 py-4 text-gray-400 hover:text-[#0F172A] bg-white hover:bg-gray-50 rounded-xl text-xs font-bold transition-all border border-transparent hover:border-[#d4a017]/20">
+                <span className="flex items-center gap-4">
+                  <CreditCard className="w-4 h-4 opacity-40" /> Billing & Payment
+                </span>
+              </button>
+              <button className="flex items-center justify-between w-full px-6 py-4 text-gray-400 hover:text-[#0F172A] bg-white hover:bg-gray-50 rounded-xl text-xs font-bold transition-all border border-transparent hover:border-[#d4a017]/20">
+                <span className="flex items-center gap-4">
+                  <Settings className="w-4 h-4 opacity-40" /> Preferences
+                </span>
+              </button>
+              <div className="pt-12 border-t border-gray-100 mt-12">
                 <button
-                  onClick={() => setActiveTab("account")}
-                  className={`flex items-center justify-between w-full px-6 py-4 rounded-xl text-xs font-bold transition-all border shadow-sm ${activeTab === "account" ? "bg-[#0F172A] text-white shadow-xl translate-x-2" : "text-gray-400 hover:text-[#0F172A] bg-white hover:border-[#d4a017]/20"}`}
+                  onClick={onLogout}
+                  className="flex items-center justify-center gap-3 w-full px-6 py-4 text-red-500 hover:bg-red-50/50 rounded-xl text-xs font-bold transition-all"
                 >
-                  <span className="flex items-center gap-4">
-                    <User
-                      className={`w-4 h-4 ${activeTab === "account" ? "text-[#d4a017]" : "opacity-40"}`}
-                    />{" "}
-                    Account Details
-                  </span>
-                  {activeTab === "account" && (
-                    <ChevronRight className="w-3 h-3 opacity-50" />
-                  )}
+                  <LogOut className="w-4 h-4 opacity-70" /> Sign Out
                 </button>
-                <button
-                  onClick={() => setActiveTab("saved")}
-                  className={`flex items-center justify-between w-full px-6 py-4 rounded-xl text-xs font-bold transition-all border shadow-sm ${activeTab === "saved" ? "bg-[#0F172A] text-white shadow-xl translate-x-2" : "text-gray-400 hover:text-[#0F172A] bg-white hover:border-[#d4a017]/20"}`}
-                >
-                  <span className="flex items-center gap-4">
-                    <Heart
-                      className={`w-4 h-4 ${activeTab === "saved" ? "text-[#d4a017]" : "opacity-40"}`}
-                    />{" "}
-                    Favourites
-                  </span>
-                  {activeTab === "saved" && (
-                    <ChevronRight className="w-3 h-3 opacity-50" />
-                  )}
-                </button>
-                <button className="flex items-center justify-between w-full px-6 py-4 text-gray-400 hover:text-[#0F172A] bg-white hover:bg-gray-50 rounded-xl text-xs font-bold transition-all border border-transparent hover:border-[#d4a017]/20">
-                  <span className="flex items-center gap-4">
-                    <CreditCard className="w-4 h-4 opacity-40" /> Billing & Payment
-                  </span>
-                </button>
-                <button className="flex items-center justify-between w-full px-6 py-4 text-gray-400 hover:text-[#0F172A] bg-white hover:bg-gray-50 rounded-xl text-xs font-bold transition-all border border-transparent hover:border-[#d4a017]/20">
-                  <span className="flex items-center gap-4">
-                    <Settings className="w-4 h-4 opacity-40" /> Preferences
-                  </span>
-                </button>
-                <div className="pt-12 border-t border-gray-100 mt-12">
-                  <button
-                    onClick={onLogout}
-                    className="flex items-center justify-center gap-3 w-full px-6 py-4 text-red-500 hover:bg-red-50/50 rounded-xl text-xs font-bold transition-all"
-                  >
-                    <LogOut className="w-4 h-4 opacity-70" /> Sign Out
-                  </button>
-                </div>
               </div>
+            </div>
+
+            {/* Mobile Tabbed Navigation (shown on mobile) */}
+            <div className="lg:hidden flex overflow-x-auto gap-2 p-2 bg-white rounded-2xl border border-gray-100 shadow-sm scrollbar-hide mb-6">
+              {[
+                { id: "account", label: "Account", icon: User },
+                { id: "saved", label: "Favourites", icon: Heart },
+                { id: "billing", label: "Billing", icon: CreditCard },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => (item.id === "account" || item.id === "saved") && setActiveTab(item.id as any)}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all ${
+                    activeTab === item.id 
+                    ? "bg-[#0F172A] text-white shadow-md" 
+                    : "text-gray-400 hover:text-[#0F172A]"
+                  }`}
+                >
+                  <item.icon className="w-3.5 h-3.5" />
+                  {item.label}
+                </button>
+              ))}
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-2 px-4 py-3 rounded-xl text-[10px] font-bold whitespace-nowrap text-red-500 hover:bg-red-50"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                Logout
+              </button>
             </div>
           </div>
 
           {/* Main Content Area */}
-          <div className="lg:col-span-3 space-y-12 pl-4">
+          <div className="lg:col-span-3 space-y-8 md:space-y-12 lg:pl-4">
             {activeTab === "account" && (
               <section className="text-left bg-white p-12 rounded-3xl border border-gray-100 shadow-sm max-w-4xl">
                 <div className="flex flex-col md:flex-row items-center gap-12 mb-16 pb-12 border-b border-gray-50">
@@ -291,12 +319,13 @@ const Profile: React.FC<ProfileProps> = ({
         </div>
       </main>
 
-      <PDFReader 
-        isOpen={!!readerIssue}
-        onClose={() => setReaderIssue(null)}
-        pdfUrl={readerIssue?.pdfUrl || ""}
-        title={readerIssue?.title || ""}
-      />
+      {readerIssue && (
+        <PDFReader 
+          onClose={() => setReaderIssue(null)}
+          pdfUrl={readerIssue.pdfUrl}
+          issueTitle={readerIssue.title}
+        />
+      )}
 
       <Footer />
     </div>

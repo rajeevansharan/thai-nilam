@@ -1,4 +1,5 @@
-import { Bell, Lock, Heart } from "lucide-react";
+import React from "react";
+import { Lock, Heart, BookOpen } from "lucide-react";
 import type { Issue, IssueCardProps } from "../types";
 
 const IssueCard: React.FC<IssueCardProps> = ({
@@ -16,97 +17,101 @@ const IssueCard: React.FC<IssueCardProps> = ({
   onToggleFavorite,
   contentImages,
 }) => {
+  const handleAction = () => {
+    const issueData = {
+      id: id!,
+      title: title!,
+      month: month!,
+      imageUrl: image!,
+      image: image!,
+      description: description!,
+      price: typeof price === 'number' ? price : parseFloat(price as string),
+      contentImages: contentImages,
+      pdfUrl: '', // Will be resolved by parent finding the full issue
+      year: '', // Will be resolved by parent finding the full issue
+    } as Issue;
+
+    if (isPurchased || isUnlocked) {
+      onRead?.(issueData);
+    } else {
+      onUnlock?.(issueData);
+    }
+  };
+
   return (
-    <div className="flex flex-col group transition-all duration-300 transform hover:-translate-y-2 h-full bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
-      {/* Magazine cover visual */}
-      <div
-        className={`relative aspect-[3/4] overflow-hidden rounded-xl shadow-lg border border-gray-50 ${isUnlocked ? "ring-2 ring-[#d4a017]/20" : "ring-1 ring-gray-100"}`}
-      >
+    <div className="flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 group h-full">
+      {/* Magazine Cover */}
+      <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
         <img
           src={image}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           alt={title}
         />
-
-        {/* Heart/Favorite button */}
+        
+        {/* Favorite Button */}
         {id && onToggleFavorite && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onToggleFavorite(id, isFavorite);
             }}
-            className="absolute top-4 left-4 z-10 p-2 bg-white/80 hover:bg-white backdrop-blur-md rounded-full shadow-md transition-colors"
-            title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+            className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors z-10"
           >
             <Heart
-              size={18}
+              size={16}
               fill={isFavorite ? "#ef4444" : "none"}
-              className={`${isFavorite ? "text-red-500" : "text-gray-600"} transition-colors duration-300`}
+              className={isFavorite ? "text-red-500" : "text-gray-400"}
             />
           </button>
         )}
 
-        {/* Status badges */}
-        <div className="absolute top-4 right-4 flex space-x-2">
-          {isPurchased && (
-            <span className="px-3 py-1 bg-[#d4a017] text-white text-[10px] uppercase font-bold tracking-wider rounded-full shadow-md flex items-center">
-              <Bell className="w-3 h-3 mr-1 fill-current" />
-              Purchased
-            </span>
-          )}
-          {!isUnlocked && !isPurchased && (
-            <span className="px-3 py-1 bg-[#0F172A]/80 text-white text-[10px] uppercase font-bold tracking-wider rounded-full backdrop-blur-md flex items-center">
-              <Lock className="w-3 h-3 mr-1" />
-              Locked
-            </span>
-          )}
-        </div>
+        {/* Access Badge */}
+        {(isPurchased || isUnlocked) ? (
+          <div className="absolute top-3 left-3 px-2 py-1 bg-[#d4a017] text-white text-[8px] font-bold uppercase tracking-widest rounded shadow-sm z-10">
+            Unlocked
+          </div>
+        ):(
+          <div className="absolute top-3 left-3 px-2 py-1 bg-[#d4a017] text-white text-[8px] font-bold uppercase tracking-widest rounded shadow-sm z-10">
+            Locked
+          </div>
+        )
+        }
       </div>
 
-      <div className="mt-6 text-left">
-        <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#d4a017] mb-2">{month}</p>
-        <h3 className="text-2xl font-serif font-semibold text-[#0F172A] leading-tight mb-2 group-hover:text-[#d4a017] transition-colors uppercase">{title}</h3>
-        <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed mb-6 italic">{description}</p>
+      {/* Content */}
+      <div className="p-5 flex flex-col flex-grow">
+        <div className="mb-3">
+          <p className="text-[9px] font-bold text-[#d4a017] uppercase tracking-[0.2em] mb-1">
+            {month}
+          </p>
+          <h3 className="text-lg font-serif font-bold text-[#0F172A] line-clamp-1 group-hover:text-[#d4a017] transition-colors">
+            {title}
+          </h3>
+        </div>
         
-        <button 
-          onClick={() => {
-            if (!(isUnlocked || isPurchased) && onUnlock) {
-              onUnlock({ 
-                id: id!, 
-                image: image!, 
-                month: month!, 
-                title: title!, 
-                description: description!, 
-                price: typeof price === 'number' ? price : parseFloat(price as string), 
-                contentImages: contentImages,
-                year: '', 
-                imageUrl: image!,
-                pdfUrl: '',
-              } as Issue);
-            } else if ((isUnlocked || isPurchased) && onRead) {
-              onRead({
-                id: id!,
-                title: title!,
-                description: description!,
-                month: month!,
-                year: '',
-                imageUrl: image!,
-                pdfUrl: '', // This will be enriched from the source data
-                price: typeof price === 'number' ? price : parseFloat(price as string),
-                contentImages: contentImages,
-              } as Issue);
-            }
-          }}
-          className={`w-full py-3.5 px-6 rounded font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 
-          ${
-            isUnlocked || isPurchased
-              ? "bg-[#0F172A] text-white hover:bg-[#1E293B]"
-              : "bg-[#d4a017] text-white hover:bg-[#b8860b] hover:shadow-lg hover:shadow-[#d4a017]/20"
-          }`}
+        <p className="text-xs text-gray-500 line-clamp-2 mb-5 italic flex-grow">
+          {description}
+        </p>
+
+        <button
+          onClick={handleAction}
+          className={`w-full py-3 px-4 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all shadow-sm
+            ${isPurchased || isUnlocked 
+              ? "bg-[#0F172A] text-white hover:bg-black" 
+              : "bg-[#d4a017] text-white hover:bg-[#b88a14]"}
+          `}
         >
-          {isUnlocked || isPurchased
-            ? "Read Now"
-            : `Unlock for LKR ${typeof price === "number" ? price.toFixed(2) : price}`}
+          {isPurchased || isUnlocked ? (
+            <>
+              <BookOpen className="w-3.5 h-3.5" />
+              Read Now
+            </>
+          ) : (
+            <>
+              <Lock className="w-3.5 h-3.5" />
+              Unlock for LKR {price}
+            </>
+          )}
         </button>
       </div>
     </div>

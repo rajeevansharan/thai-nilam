@@ -70,19 +70,19 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1e293b] relative flex flex-col lg:flex-row items-center justify-center font-sans overflow-hidden px-8 lg:px-24 py-12 gap-16">
+    <div className="min-h-screen bg-[#1e293b] relative flex flex-col lg:flex-row items-center justify-center font-sans overflow-y-auto lg:overflow-hidden px-6 sm:px-12 lg:px-24 py-12 lg:py-0 gap-10 lg:gap-16">
       {/* Decorative Background Lighting */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
-        className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"
+        className="absolute top-[-5%] right-[-5%] w-[60%] h-[60%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"
       />
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 0.2 }}
-        className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#d4a017]/5 rounded-full blur-[100px] pointer-events-none"
+        className="absolute bottom-[-5%] left-[-5%] w-[50%] h-[50%] bg-[#d4a017]/5 rounded-full blur-[100px] pointer-events-none"
       />
 
       {/* Left Branding Content */}
@@ -90,19 +90,19 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         initial="hidden"
         animate="visible"
         variants={fadeUp}
-        className="lg:w-1/2 w-full text-left relative z-10 space-y-6"
+        className="lg:w-1/2 w-full text-center lg:text-left relative z-10 space-y-4 md:space-y-6"
       >
         <div className="inline-block px-4 py-1.5 bg-white/5 rounded-full border border-white/10 backdrop-blur-md mb-2">
-          <span className="text-[10px] uppercase font-bold tracking-[0.4em] text-[#d4a017]">
+          <span className="text-[9px] md:text-[10px] uppercase font-bold tracking-[0.3em] md:tracking-[0.4em] text-[#d4a017]">
             Welcome To
           </span>
         </div>
-        <h1 className="text-white text-6xl md:text-8xl font-serif font-bold tracking-tight leading-[1.1]">
+        <h1 className="text-white text-5xl sm:text-6xl md:text-8xl font-serif font-bold tracking-tight leading-[1.1]">
           Thai Nilam <br/>
           <span className="text-[#d4a017] drop-shadow-[0_0_15px_rgba(212,160,23,0.3)]">Digital</span>
         </h1>
-        <div className="h-1 w-20 bg-gradient-to-r from-[#d4a017] to-transparent rounded-full mb-6"></div>
-        <p className="text-slate-400 text-lg md:text-xl font-light max-w-lg leading-relaxed">
+        <div className="h-1 w-16 md:w-20 bg-gradient-to-r from-[#d4a017] to-transparent rounded-full mb-4 md:mb-6 mx-auto lg:mx-0"></div>
+        <p className="text-slate-400 text-base md:text-xl font-light max-w-lg leading-relaxed mx-auto lg:mx-0">
           The ultimate platform for premium Tamil literature, curated stories, 
           and professional perspectives. Experience modern digital publishing 
           like never before.
@@ -115,25 +115,25 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         animate="visible"
         variants={fadeUp}
         transition={{ delay: 0.2 }}
-        className="lg:w-1/2 w-full flex justify-center lg:justify-end"
+        className="lg:w-1/2 w-full flex justify-center lg:justify-end z-10"
       >
         <motion.div 
           layout
-          className="bg-white rounded-[2.5rem] shadow-[0_35px_80px_rgba(0,0,0,0.3)] border border-white/10 p-8 md:p-10 max-w-md w-full relative overflow-hidden"
+          className="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-[0_35px_80px_rgba(0,0,0,0.3)] border border-white/10 p-6 sm:p-10 max-w-md w-full relative overflow-hidden"
         >
           {/* Subtle Accent Line */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#d4a017] to-transparent"></div>
 
           <motion.div layout className="mb-6 text-center">
             <div className="inline-block px-3 py-1 bg-[#1e293b]/5 rounded-full mb-3">
-              <span className="text-[10px] uppercase font-bold tracking-[0.3em] text-[#1e293b]">
+              <span className="text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] md:tracking-[0.3em] text-[#1e293b]">
                 Thai Nilam Digital
               </span>
             </div>
-            <h2 className="text-2xl font-serif font-semibold text-gray-900 mb-1">
+            <h2 className="text-xl md:text-2xl font-serif font-semibold text-gray-900 mb-1">
               {isRegister ? "Join Thai Nilam" : "Welcome back"}
             </h2>
-            <p className="text-gray-500 text-xs shadow-sm inline-block px-2 py-0.5 rounded-md bg-gray-50/50">
+            <p className="text-gray-500 text-[10px] md:text-xs shadow-sm inline-block px-2 py-0.5 rounded-md bg-gray-50/50">
               {isRegister ? "Create a new account" : "Sign in to your account"}
             </p>
           </motion.div>

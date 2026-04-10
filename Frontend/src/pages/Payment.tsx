@@ -12,16 +12,17 @@ import {
   User as UserIcon,
   CreditCard as CardIcon,
   FileUp,
-  Image as ImageIcon,
-  AlertCircle
+  AlertCircle,
+  Image as ImageIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { uploadReceipt } from "../services/purchaseService";
+import type { Issue, User } from "../types";
 
 interface PaymentProps {
   onNavigate: (page: string) => void;
-  issue: any;
-  user: any;
+  issue: Issue | null;
+  user: User | null;
 }
 
 const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
@@ -42,7 +43,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
       onNavigate("library");
     }
     window.scrollTo(0, 0);
-  }, [issue]);
+  }, [issue, onNavigate]);
 
   if (!issue) return null;
 
@@ -82,7 +83,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
+    if (!user?.id) {
       onNavigate("login");
       return;
     }
@@ -97,18 +98,15 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
           setLoading(false);
           return;
         }
-        await uploadReceipt(user.id, issue.id, issue.price || 500, receiptFile);
+        await uploadReceipt(Number(user.id), Number(issue.id), Number(issue.price || 500), receiptFile);
         setStep(2);
       } else {
-        // Simulating card payment success for now
-        setTimeout(() => {
-          setLoading(false);
-          setStep(2);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 2000);
-        return;
+        // Simulating card payment success
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setStep(2);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError("Failed to process payment. Please try again.");
       console.error(err);
     } finally {
@@ -123,10 +121,8 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
       <main className="flex-grow max-w-7xl mx-auto w-full px-6 py-12 md:py-16 space-y-16">
         {step === 1 ? (
           <>
-            {/* Top Section: Magazine Preview */}
             <MagazinePreview issue={issue} />
 
-            {/* Bottom Section: Payment Section */}
             <section id="payment" className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
@@ -143,11 +139,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                           <button
                             type="button"
                             onClick={() => setPaymentMethod('card')}
-                            className={`flex-1 p-5 rounded-xl border-[1.5px] transition-all flex flex-col items-center justify-center gap-1.5 group ${
-                              paymentMethod === 'card' 
-                              ? 'border-[#d4a017] bg-[#fffcf0]' 
-                              : 'border-gray-100 bg-white hover:border-[#d4a017]/30'
-                            }`}
+                            className={`flex-1 p-5 rounded-xl border-[1.5px] transition-all flex flex-col items-center justify-center gap-1.5 group ${paymentMethod === 'card' ? 'border-[#d4a017] bg-[#fffcf0]' : 'border-gray-100 bg-white hover:border-[#d4a017]/30'}`}
                           >
                             <CardIcon className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-[#d4a017]' : 'text-gray-400'}`} />
                             <span className={`text-[10px] font-bold uppercase tracking-[0.25em] ${paymentMethod === 'card' ? 'text-[#d4a017]' : 'text-gray-500'}`}>Card</span>
@@ -156,11 +148,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                           <button
                             type="button"
                             onClick={() => setPaymentMethod('receipt')}
-                            className={`flex-1 p-5 rounded-xl border-[1.5px] transition-all flex flex-col items-center justify-center gap-1.5 group ${
-                              paymentMethod === 'receipt' 
-                              ? 'border-[#d4a017] bg-[#fffcf0]' 
-                              : 'border-gray-100 bg-white hover:border-[#d4a017]/30'
-                            }`}
+                            className={`flex-1 p-5 rounded-xl border-[1.5px] transition-all flex flex-col items-center justify-center gap-1.5 group ${paymentMethod === 'receipt' ? 'border-[#d4a017] bg-[#fffcf0]' : 'border-gray-100 bg-white hover:border-[#d4a017]/30'}`}
                           >
                             <FileUp className={`w-6 h-6 ${paymentMethod === 'receipt' ? 'text-[#d4a017]' : 'text-gray-400'}`} />
                             <span className={`text-[10px] font-bold uppercase tracking-[0.25em] ${paymentMethod === 'receipt' ? 'text-[#d4a017]' : 'text-gray-500'}`}>Upload Receipt</span>
@@ -262,27 +250,18 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                                   <h4 className="text-sm font-bold text-slate-700">
                                     {receiptFile ? receiptFile.name : "Select your receipt file"}
                                   </h4>
-                                  <p className="text-[11px] text-slate-500 mt-1 max-w-xs">
-                                    Upload a photo or PDF of your bank transfer or manual payment proof.
-                                  </p>
+                                  <p className="text-[11px] text-slate-500 mt-1 max-w-xs">Upload a photo or PDF of your bank transfer or manual payment proof.</p>
                                 </div>
                                 <label className="cursor-pointer bg-white border border-slate-200 px-6 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
                                   {receiptFile ? "Change File" : "Choose File"}
-                                  <input 
-                                    type="file" 
-                                    className="hidden" 
-                                    accept="image/*,application/pdf"
-                                    onChange={handleFileChange}
-                                  />
+                                  <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileChange} />
                                 </label>
                               </div>
                             </div>
                             
                             <div className="p-5 bg-[#fffcf0] border border-[#d4a017]/20 rounded-2xl flex gap-3">
                               <AlertCircle className="w-4 h-4 text-[#d4a017] shrink-0" />
-                              <p className="text-[11px] text-[#86660d] leading-relaxed">
-                                Note: Our team will review your receipt and grant access within 2-4 hours. You'll receive a notification once approved.
-                              </p>
+                              <p className="text-[11px] text-[#86660d] leading-relaxed">Note: Our team will review your receipt and grant access within 2-4 hours.</p>
                             </div>
                           </motion.div>
                         )}
@@ -295,11 +274,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                         </div>
                       )}
 
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-5 bg-[#1e293b] text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:translate-y-0 active:scale-[0.98]"
-                      >
+                      <button type="submit" disabled={loading} className="w-full py-5 bg-[#1e293b] text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 disabled:opacity-70 active:scale-[0.98]">
                         {loading ? (
                           <>
                             <Loader2 className="w-5 h-5 animate-spin text-[#d4a017]" />
@@ -316,13 +291,13 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                   </motion.div>
                 </div>
 
-                {/* Right: Summary Side Side */}
-                <div className="lg:col-span-4 h-full">
-                  <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-8 md:p-10 h-full flex flex-col">
+                {/* Right: Summary */}
+                <div className="lg:col-span-4 h-full order-1 lg:order-2">
+                  <div className="bg-white rounded-[2rem] border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-8 md:p-10 h-full flex flex-col">
                     <div className="flex-grow">
-                      <div className="flex items-center gap-5 mb-10 pb-8 border-b border-gray-100">
+                      <div className="flex items-center gap-5 mb-8 pb-8 border-b border-gray-100">
                         <div className="w-20 h-24 shrink-0 shadow-lg rotate-[-2deg]">
-                          <img src={issue.image} className="w-full h-full object-cover rounded-xl" alt="Thumbnail" />
+                          <img src={issue.imageUrl} className="w-full h-full object-cover rounded-xl" alt="Thumbnail" />
                         </div>
                         <div className="flex flex-col gap-1">
                           <h4 className="text-xl font-serif font-bold text-[#1e293b]">{issue.title}</h4>
@@ -330,7 +305,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                         </div>
                       </div>
 
-                      <div className="space-y-5 mb-10">
+                      <div className="space-y-4 mb-8">
                         <div className="flex justify-between text-[13px] font-medium">
                           <span className="text-[#94a3b8]">Magazine Price</span>
                           <span className="text-[#1e293b] font-bold">LKR {Number(issue.price || 500).toFixed(2)}</span>
@@ -347,7 +322,7 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
                       </div>
                     </div>
 
-                    <div className="mt-12 space-y-8">
+                    <div className="mt-12 space-y-6">
                       <div className="flex items-start gap-3 p-5 bg-[#fffcf0] rounded-2xl border border-[#fff1bd]">
                         <ShieldCheck className="w-4 h-4 text-[#d4a017] shrink-0 mt-0.5" />
                         <p className="text-[11px] text-[#86660d] font-medium leading-relaxed opacity-80">
@@ -373,37 +348,18 @@ const Payment: React.FC<PaymentProps> = ({ onNavigate, issue, user }) => {
             </section>
           </>
         ) : (
-          /* Success Step */
-          <div className="max-w-xl mx-auto text-center py-12 lg:py-24 bg-white rounded-[3rem] p-12 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-700">
+          <div className="max-w-xl mx-auto text-center py-24 bg-white rounded-[3rem] p-12 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-700">
             <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner">
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
-            <p className="text-[10px] uppercase font-bold tracking-[0.4em] text-green-600 mb-4">
-              {paymentMethod === 'receipt' ? "Submission Successful" : "Transaction Successful"}
-            </p>
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#0F172A] mb-6">
-              {paymentMethod === 'receipt' ? "Receipt Received!" : "Unlock Complete!"}
-            </h2>
+            <p className="text-[10px] uppercase font-bold tracking-[0.4em] text-green-600 mb-4">{paymentMethod === 'receipt' ? "Submission Successful" : "Unlock Successful"}</p>
+            <h2 className="text-5xl font-serif font-bold text-[#0F172A] mb-6">{paymentMethod === 'receipt' ? "Receipt Received!" : "Unlock Complete!"}</h2>
             <p className="text-gray-500 mb-12 leading-relaxed italic font-serif text-lg max-w-sm mx-auto">
-              {paymentMethod === 'receipt' 
-                ? `Your proof of payment for "${issue.title}" has been submitted. Our team will review it shortly. Check your library once it's approved.`
-                : `You now have full access to "${issue.title}". The content is waiting for you in your library.`
-              }
+              {paymentMethod === 'receipt' ? `Your proof of payment for "${issue.title}" has been submitted.` : `You now have full access to "${issue.title}".`}
             </p>
-
-            <div className="space-y-4 flex flex-col sm:flex-row gap-4 sm:space-y-0">
-              <button
-                onClick={() => onNavigate("library")}
-                className="flex-1 py-5 bg-[#0F172A] text-white rounded-2xl font-bold text-sm hover:bg-black transition-all flex items-center justify-center gap-3 shadow-xl"
-              >
-                {paymentMethod === 'receipt' ? "Check Status" : "Go to My Library"}
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => onNavigate("home")}
-                className="flex-1 py-5 border border-gray-100 text-gray-500 rounded-2xl font-bold text-xs hover:bg-gray-50 transition-all uppercase tracking-widest"
-              >
-                Return Home
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button onClick={() => onNavigate("library")} className="flex-1 py-5 bg-[#0F172A] text-white rounded-2xl font-bold text-sm hover:bg-black transition-all flex items-center justify-center gap-3 shadow-xl">
+                Go to My Library <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>

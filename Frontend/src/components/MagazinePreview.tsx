@@ -11,7 +11,7 @@ interface Issue {
   description: string;
   month: string;
   year: string;
-  image: string;
+  imageUrl: string;
   contentImages?: ContentImage[];
 }
 
@@ -21,32 +21,32 @@ interface MagazinePreviewProps {
 
 const MagazinePreview: React.FC<MagazinePreviewProps> = ({ issue }) => {
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-gray-100 shadow-sm overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-2 h-full bg-[#d4a017]"></div>
-        <div className="flex flex-col md:flex-row gap-10">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] p-6 sm:p-8 md:p-12 border border-gray-100 shadow-sm overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-1.5 md:w-2 h-full bg-[#d4a017]"></div>
+        <div className="flex flex-col md:flex-row gap-8 md:gap-10">
           <div className="w-full md:w-1/3">
-            <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border border-gray-100 transform -rotate-1 hover:rotate-0 transition-transform duration-500">
+            <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border border-gray-100 transform -rotate-1 hover:rotate-0 transition-transform duration-500 max-w-[280px] md:max-w-none mx-auto">
               <img
-                src={issue.image}
+                src={issue.imageUrl}
                 alt={issue.title}
                 className="w-full h-full object-cover"
               />
             </div>
           </div>
-          <div className="flex-1 flex flex-col justify-center">
+          <div className="flex-1 flex flex-col justify-center text-left">
             <div className="inline-block px-3 py-1 bg-[#d4a017]/10 rounded-full mb-4 w-fit">
-              <span className="text-[10px] uppercase font-bold tracking-[0.3em] text-[#d4a017]">
+              <span className="text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] md:tracking-[0.3em] text-[#d4a017]">
                 {issue.month}
               </span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#0F172A] mb-4">
+            <h1 className="text-3xl md:text-5xl font-serif font-bold text-[#0F172A] mb-4 md:mb-6">
               {issue.title}
             </h1>
-            <p className="text-gray-500 text-lg leading-relaxed italic mb-8 max-w-lg">
+            <p className="text-gray-500 text-base md:text-lg leading-relaxed italic mb-8 max-w-lg">
               {issue.description}
             </p>
-            <div className="flex items-center gap-6 text-xs text-[#d4a017] font-bold uppercase tracking-widest">
+            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-[10px] md:text-xs text-[#d4a017] font-bold uppercase tracking-widest">
               <span className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-[#d4a017]/10 flex items-center justify-center">
                   <Lock className="w-3 h-3" />
