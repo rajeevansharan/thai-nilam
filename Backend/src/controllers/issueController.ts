@@ -42,6 +42,7 @@ export const createIssue = async (req: Request, res: Response): Promise<void> =>
 
     res.status(201).json(issue);
   } catch (error) {
+    console.error('Create issue error:', error);
     res.status(500).json({ error: 'Failed to create issue' });
   }
 };
@@ -84,6 +85,7 @@ export const getAllIssues = async (req: Request, res: Response): Promise<void> =
 
     res.json(formattedIssues);
   } catch (error) {
+    console.error('Fetch issues error:', error);
     res.status(500).json({ error: 'Failed to fetch issues' });
   }
 };
@@ -116,9 +118,10 @@ export const getRecentIssues = async (req: Request, res: Response): Promise<void
       };
     });  res.json(formattedIssues);
     
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch recent issues' });
-      }
+  } catch (error) {
+    console.error('Fetch recent issues error:', error);
+    res.status(500).json({ error: 'Failed to fetch recent issues' });
+  }
     };
 
 export const updateIssue = async (req: Request, res: Response): Promise<void> => {

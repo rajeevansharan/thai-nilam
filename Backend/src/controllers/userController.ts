@@ -30,6 +30,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       isPremium: user.isPremium,
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ error: 'Registration failed' });
   }
 };
@@ -56,6 +57,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       isPremium: user.isPremium,
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
   }
 };
@@ -75,6 +77,7 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
     });
     res.json(users);
   } catch (error) {
+    console.error('Fetch users error:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 };
@@ -149,6 +152,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
     });
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
+    console.error('Delete user error:', error);
     res.status(500).json({ error: 'Failed to delete user' });
   }
 };
@@ -176,6 +180,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 
     res.json(updatedUser);
   } catch (error) {
+    console.error('Update user error:', error);
     res.status(500).json({ error: 'Failed to update user' });
   }
 };
