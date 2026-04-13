@@ -35,11 +35,34 @@ const PDFReader: React.FC<PDFReaderProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setLoadError] = useState<string | null>(null);
 
+  // Body scroll lock
+  useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
+
+  // Responsive scale initialization
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 640) setScale(0.5);
+      else if (width < 768) setScale(0.7);
+      else if (width < 1024) setScale(0.9);
+      else setScale(1.1);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Auto-hide controls after inactivity
   useEffect(() => {
     let timeout: number;
     if (controlsVisible) {
-      timeout = window.setTimeout(() => setControlsVisible(false), 4000);
+      timeout = window.setTimeout(() => setControlsVisible(false), 5000);
     }
     return () => window.clearTimeout(timeout as unknown as number);
   }, [controlsVisible]);
@@ -85,9 +108,9 @@ const PDFReader: React.FC<PDFReaderProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[#0F172A] flex flex-col items-center overflow-hidden touch-none"
+        className="fixed inset-0 z-[100] bg-[#0F172A] flex flex-col items-center overflow-hidden"
         onMouseMove={() => setControlsVisible(true)}
-        onClick={() => setControlsVisible(true)}
+        onMouseEnter={() => setControlsVisible(true)}
       >
         {/* Top bar */}
         <div
@@ -102,10 +125,14 @@ const PDFReader: React.FC<PDFReaderProps> = ({
             </p>
           </div>
           <button
-            onClick={onClose}
-            className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/10 rounded-full text-white transition-all shadow-xl"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="p-3 md:p-4 bg-white/10 hover:bg-rose-500/20 active:bg-rose-500/40 backdrop-blur-xl border border-white/10 rounded-full text-white transition-all shadow-xl active:scale-95 touch-manipulation group"
+            aria-label="Close Reader"
           >
-            <X className="w-6 h-6" />
+            <X className="w-6 h-6 md:w-8 md:h-8 group-hover:rotate-90 transition-transform duration-300" />
           </button>
         </div>
 
@@ -120,7 +147,11 @@ const PDFReader: React.FC<PDFReaderProps> = ({
         )}
 
         {/* PDF Document */}
-        <div className="flex-grow w-full flex items-center justify-center overflow-auto custom-scrollbar pt-20 pb-20 px-4 select-none">
+        <div 
+          className="flex-grow w-full flex items-start justify-center overflow-auto custom-scrollbar pt-24 pb-32 md:pb-40 px-4 select-none z-[40]"
+          onScroll={() => setControlsVisible(true)}
+          onClick={() => setControlsVisible((v) => !v)}
+        >
           {error ? (
             <div className="max-w-md w-full bg-white/5 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 text-center animate-in zoom-in-95 duration-500">
               <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -168,66 +199,68 @@ const PDFReader: React.FC<PDFReaderProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-50 w-[94%] max-w-2xl px-2"
+              className="absolute bottom-0 inset-x-0 z-50 pb-4 md:pb-8 pt-12 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
+              onClick={(e) => e.stopPropagation()}
             >
-              {/* Page Info Pill */}
-              <div className="bg-[#0F172A]/80 backdrop-blur-xl px-4 md:px-6 py-2 rounded-full border border-white/10 shadow-2xl">
-                <p className="text-white font-bold text-[10px] md:text-xs uppercase tracking-[0.2em]">
-                  Page {pageNumber}{" "}
-                  <span className="text-white/40 mx-2">/</span>{" "}
-                  {numPages || "..."}
-                </p>
+              {/* Page Counter */}
+              <div className="flex justify-center mb-3">
+                <div className="bg-white/10 backdrop-blur-xl px-4 py-1.5 rounded-full border border-white/10">
+                  <p className="text-white font-bold text-[11px] md:text-xs uppercase tracking-[0.2em]">
+                    Page {pageNumber}
+                    <span className="text-white/40 mx-1.5">/</span>
+                    {numPages || "..."}
+                  </p>
+                </div>
               </div>
 
-              {/* Main Controls Bar */}
-              <div className="bg-[#0F172A]/90 backdrop-blur-2xl px-4 md:px-8 py-3 md:py-4 rounded-[1.5rem] md:rounded-3xl border border-white/10 shadow-2xl flex items-center justify-between w-full">
-                <div className="flex items-center gap-1 md:gap-4">
-                  <button
-                    onClick={prevPage}
-                    disabled={pageNumber <= 1}
-                    className="p-2 md:p-3 hover:bg-white/10 rounded-xl transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-                  >
-                    <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                  </button>
+              {/* Controls Bar — single flat row, all buttons always visible */}
+              <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-3 px-4 max-w-lg mx-auto">
+                {/* Previous */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); prevPage(); }}
+                  disabled={pageNumber <= 1}
+                  className="p-2.5 sm:p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-xl border border-white/10 transition-all disabled:opacity-30 active:scale-95 touch-manipulation"
+                  aria-label="Previous Page"
+                >
+                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </button>
 
-                  <div className="h-4 w-[px] bg-white/10 mx-1 md:mx-2" />
+                {/* Zoom Out */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); zoomOut(); }}
+                  className="p-2.5 sm:p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-xl border border-white/10 transition-all active:scale-95 touch-manipulation"
+                  aria-label="Zoom Out"
+                >
+                  <Minus className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </button>
 
-                  <button
-                    onClick={zoomOut}
-                    className="p-2 md:p-3 hover:bg-white/10 rounded-xl transition-all"
-                  >
-                    <Minus className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                  </button>
-                  <button
-                    onClick={zoomIn}
-                    className="p-2 md:p-3 hover:bg-white/10 rounded-xl transition-all"
-                  >
-                    <Plus className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                  </button>
-                </div>
+                {/* Zoom In */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); zoomIn(); }}
+                  className="p-2.5 sm:p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-xl border border-white/10 transition-all active:scale-95 touch-manipulation"
+                  aria-label="Zoom In"
+                >
+                  <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </button>
 
-                <div className="hidden sm:block">
-                  <span className="text-white font-serif font-bold text-sm tracking-wide opacity-80 truncate max-w-[150px]">
-                    {issueTitle}
-                  </span>
-                </div>
+                {/* Fullscreen */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleFullScreen(); }}
+                  className="p-2.5 sm:p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-xl border border-white/10 transition-all active:scale-95 touch-manipulation"
+                  aria-label="Toggle Fullscreen"
+                >
+                  <Maximize className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </button>
 
-                <div className="flex items-center gap-1 md:gap-4">
-                  <button
-                    onClick={toggleFullScreen}
-                    className="p-2 md:p-3 hover:bg-white/10 rounded-xl transition-all hidden xs:block"
-                  >
-                    <Maximize className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                  </button>
-                  <div className="h-4 w-[1px] bg-white/10 mx-1 md:mx-2 hidden xs:block" />
-                  <button
-                    onClick={nextPage}
-                    disabled={pageNumber >= (numPages || 0)}
-                    className="p-2 md:p-3 hover:bg-[#d4a017] bg-[#d4a017]/20 rounded-xl transition-all disabled:opacity-30"
-                  >
-                    <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-[#d4a017]" />
-                  </button>
-                </div>
+                {/* Next */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); nextPage(); }}
+                  disabled={!!numPages && pageNumber >= numPages}
+                  className="p-2.5 sm:p-3 bg-[#d4a017]/20 hover:bg-[#d4a017]/40 backdrop-blur-xl rounded-xl border border-[#d4a017]/30 transition-all disabled:opacity-30 active:scale-95 touch-manipulation"
+                  aria-label="Next Page"
+                >
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-[#d4a017]" />
+                </button>
               </div>
             </motion.div>
           )}
