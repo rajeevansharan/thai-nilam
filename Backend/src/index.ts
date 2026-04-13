@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     "http://localhost:5173", // for local testing
-    "https://your-frontend-url.com" // <-- your deployed frontend URL
+    "https://thai-nilam.vercel.app" // <-- your deployed frontend URL
   ],
   credentials: true
 }));
