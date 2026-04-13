@@ -10,6 +10,7 @@ import {
   FileText
 } from "lucide-react";
 import { createIssue, getAllIssues, deleteIssue, updateIssue } from "../../services/issueService";
+import { getImageUrl } from "../../config/api";
 
 interface Issue {
   id: number;
@@ -150,11 +151,7 @@ const IssueManagement: React.FC = () => {
     setFeedbackMessage({ text: "", type: "" });
   };
 
-  const getFileUrl = (path: string) => {
-    if (!path) return "";
-    if (path.startsWith("http")) return path;
-    return `http://localhost:5000/${path.replace(/\\/g, "/")}`;
-  };
+  // Removed local getFileUrl in favor of imported getImageUrl
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 md:pb-20">
@@ -402,11 +399,11 @@ const IssueManagement: React.FC = () => {
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-16 rounded shadow-sm border border-gray-100 overflow-hidden shrink-0">
-                            <img src={getFileUrl(issue.imageUrl)} className="w-full h-full object-cover" alt="" />
+                            <img src={getImageUrl(issue.imageUrl)} className="w-full h-full object-cover" alt="" />
                           </div>
                           <div>
                             <p className="text-sm font-bold text-[#1e293b]">{issue.title}</p>
-                            <a href={getFileUrl(issue.pdfUrl)} target="_blank" rel="noreferrer" className="text-[10px] flex items-center gap-1 text-[#d4a017] font-bold uppercase tracking-widest hover:underline mt-1">
+                            <a href={getImageUrl(issue.pdfUrl)} target="_blank" rel="noreferrer" className="text-[10px] flex items-center gap-1 text-[#d4a017] font-bold uppercase tracking-widest hover:underline mt-1">
                               <FileText className="w-3 h-3" /> View PDF
                             </a>
                           </div>

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE_URL } from "../config/api";
 
 // Configure worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -60,7 +61,8 @@ const PDFReader: React.FC<PDFReaderProps> = ({
   const getFullPdfUrl = (path: string) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
-    return `http://localhost:5000/${path.replace(/\\/g, "/")}`;
+    const cleanPath = path.replace(/\\/g, "/").replace(/^\//, "");
+    return `${API_BASE_URL}/${cleanPath}`;
   };
 
   const nextPage = () =>

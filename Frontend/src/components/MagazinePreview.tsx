@@ -1,5 +1,6 @@
 import React from "react";
 import { Lock, ShieldCheck } from "lucide-react";
+import { getImageUrl } from "../config/api";
 
 interface ContentImage {
   id: number;
@@ -84,11 +85,7 @@ const MagazinePreview: React.FC<MagazinePreviewProps> = ({ issue }) => {
               >
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
                 <img
-                  src={
-                    img.url.startsWith("http")
-                      ? img.url
-                      : `http://localhost:5000/${img.url.replace(/\\/g, "/")}`
-                  }
+                  src={getImageUrl(img.url)}
                   alt={`Preview ${idx + 1}`}
                   className="w-full h-full object-cover"
                 />

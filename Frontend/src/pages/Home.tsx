@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import PDFReader from "../components/PDFReader";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { toggleFavorite } from "../services/issueService";
+import { API_URL, getImageUrl } from "../config/api";
 import type { User, Issue } from "../types";
 
 interface HomeProps {
@@ -23,12 +24,19 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
     const fetchRecent = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/issues/recent${user?.id ? `?userId=${user.id}` : ""}`
+          `${API_URL}/issues/recent${user?.id ? `?userId=${user.id}` : ""}`
         );
         const data = await response.json();
-        setIssues(data);
+        
+        if (Array.isArray(data)) {
+          setIssues(data);
+        } else {
+          console.error("Received non-array data for issues:", data);
+          setIssues([]);
+        }
       } catch (error) {
         console.error("Failed to fetch recent issues", error);
+        setIssues([]);
       } finally {
         setLoading(false);
       }
@@ -77,11 +85,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
     }
   };
 
-  const getImageUrl = (path: string) => {
-    if (!path) return "";
-    if (path.startsWith("http")) return path;
-    return `http://localhost:5000/${path.replace(/\\/g, "/")}`;
-  };
+  // Removed local getImageUrl in favor of the imported one
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">

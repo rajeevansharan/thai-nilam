@@ -5,7 +5,7 @@ import IssueCard from "../components/IssueCard";
 import PDFReader from "../components/PDFReader";
 import { Filter, ChevronDown, Loader2 } from "lucide-react";
 import { getAllIssues, toggleFavorite } from "../services/issueService";
-
+import { getImageUrl } from "../config/api";
 import type { User, Issue } from "../types";
 
 interface LibraryProps {
@@ -58,11 +58,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
     fetchIssues();
   }, [selectedMonth, selectedYear, user?.id]);
 
-  // Helper to resolve backend image paths
-  const getImageUrl = (path: string) => {
-    if (path.startsWith("http")) return path;
-    return `http://localhost:5000/${path.replace(/\\/g, "/")}`; // Ensure forward slashes for URLs
-  };
+  // Removed local getImageUrl helper
 
   const handleToggleFavorite = async (
     issueId: string | number,

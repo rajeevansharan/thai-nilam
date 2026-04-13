@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CheckCircle2, XCircle, Clock, Eye, Filter, Search, DollarSign, Wallet } from "lucide-react";
 import { getAllPurchases, updatePurchaseStatus } from "../../services/purchaseService";
+import { getImageUrl } from "../../config/api";
 
 interface Payment {
   id: number;
@@ -46,11 +47,7 @@ const PaymentManagement: React.FC = () => {
     }
   };
 
-  const getFileUrl = (path: string) => {
-    if (!path) return "";
-    if (path.startsWith("http")) return path;
-    return `http://localhost:5000/${path.replace(/\\/g, "/")}`;
-  };
+  // Removed local getFileUrl in favor of imported getImageUrl
 
   const filteredPayments = payments.filter(p => 
     p.user?.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -142,7 +139,7 @@ const PaymentManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-5">
                       <button 
-                        onClick={() => setViewingReceipt(getFileUrl(payment.receiptUrl))}
+                        onClick={() => setViewingReceipt(getImageUrl(payment.receiptUrl))}
                         className="flex items-center gap-2 text-[10px] font-bold text-[#d4a017] uppercase tracking-widest hover:underline"
                       >
                         <Eye className="w-3.5 h-3.5" />

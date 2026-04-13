@@ -15,6 +15,7 @@ import Footer from "../components/Footer";
 import IssueCard from "../components/IssueCard";
 import PDFReader from "../components/PDFReader";
 import { getFavorites, toggleFavorite } from "../services/issueService";
+import { getImageUrl } from "../config/api";
 import type { User as UserType, Issue } from "../types";
 
 interface ProfileProps {
@@ -78,11 +79,7 @@ const Profile: React.FC<ProfileProps> = ({
     }
   };
 
-  const getImageUrl = (path: string) => {
-    if (!path) return "";
-    if (path.startsWith("http")) return path;
-    return `http://localhost:5000/${path.replace(/\\/g, "/")}`;
-  };
+  // Removed local getImageUrl helper
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -151,7 +148,11 @@ const Profile: React.FC<ProfileProps> = ({
               ].map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => (item.id === "account" || item.id === "saved") && setActiveTab(item.id as any)}
+                  onClick={() => {
+                    if (item.id === "account" || item.id === "saved") {
+                      setActiveTab(item.id);
+                    }
+                  }}
                   className={`flex items-center gap-2 px-4 py-3 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all ${
                     activeTab === item.id 
                     ? "bg-[#0F172A] text-white shadow-md" 
