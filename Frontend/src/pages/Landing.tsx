@@ -73,15 +73,15 @@ const Landing = () => {
 
             {/* Login & Register Buttons */}
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 mb-12 w-full px-6">
-              <Link to="/login" state={{ mode: 'login' }} className="w-full sm:w-auto">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full sm:min-w-[180px] px-8 py-3.5 rounded-full border border-white/30 text-white font-semibold hover:bg-white/10 transition-all backdrop-blur-md text-sm md:text-base"
-                >
-                  Member Login
-                </motion.button>
-              </Link>
+                <Link to="/login" state={{ mode: 'login' }} className="w-full sm:w-auto">
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full sm:min-w-[180px] px-8 py-3.5 rounded-full border border-white/30 text-white font-semibold hover:bg-white/10 transition-all backdrop-blur-md text-sm md:text-base"
+                  >
+                    Member Login
+                  </motion.button>
+                </Link>
               <Link to="/login" state={{ mode: 'register' }} className="w-full sm:w-auto">
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
@@ -124,6 +124,12 @@ const Landing = () => {
             <img src={logo} alt="Thai Nilam" className="h-8 w-auto" />
             <span className="font-serif text-lg font-bold text-foreground">தாய் நிலம்</span>
           </div>
+          
+          <div className="flex space-x-6">
+            <Link to="/privacy-policy" state={{ fromLanding: true }} className="text-[10px] md:text-sm text-muted-foreground hover:text-accent transition-colors font-bold uppercase tracking-widest">Privacy Policy</Link>
+            <Link to="/terms-conditions" state={{ fromLanding: true }} className="text-[10px] md:text-sm text-muted-foreground hover:text-accent transition-colors font-bold uppercase tracking-widest">Terms of Service</Link>
+          </div>
+
           <p className="text-[10px] md:text-sm text-muted-foreground text-center">© 2026 Thai Nilam பதிப்பகம். All rights reserved.</p>
         </div>
       </footer>

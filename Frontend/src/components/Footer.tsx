@@ -24,8 +24,8 @@ const Footer: React.FC = () => {
         {/* Legal & Copyright Section */}
         <div className="flex flex-col items-center md:items-end text-center md:text-right">
            <div className="flex space-x-6 mb-3 md:mb-2">
-             <a href="#" className="text-[8px] md:text-[9px] uppercase font-bold tracking-widest text-gray-500 hover:text-[#d4a017] transition-colors">Privacy Policy</a>
-             <a href="#" className="text-[8px] md:text-[9px] uppercase font-bold tracking-widest text-gray-500 hover:text-[#d4a017] transition-colors">Terms of Service</a>
+             <Link to="/privacy-policy" className="text-[8px] md:text-[9px] uppercase font-bold tracking-widest text-gray-500 hover:text-[#d4a017] transition-colors">Privacy Policy</Link>
+             <Link to="/terms-conditions" className="text-[8px] md:text-[9px] uppercase font-bold tracking-widest text-gray-500 hover:text-[#d4a017] transition-colors">Terms of Service</Link>
            </div>
            <p className="text-[8px] md:text-[9px] uppercase font-bold tracking-widest text-gray-600 opacity-60">
              &copy; 2026 Thai Nilam Magazine. All rights reserved.

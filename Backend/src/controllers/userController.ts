@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma';
+
+const SALT_ROUNDS = 12;
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -14,15 +18,24 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
     const user = await prisma.user.create({
       data: {
         name,
         email,
-        password, // Using plain text as per existing pattern
+        password: hashedPassword,
       },
     });
 
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: '7d' }
+    );
+
     res.status(201).json({
+      token,
       id: user.id,
       email: user.email,
       name: user.name,
@@ -39,17 +52,30 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
     
-    // As per user's request, no JWT or Bcrypt yet. Plain text check.
     const user = await prisma.user.findUnique({
       where: { email },
     });
 
-    if (!user || user.password !== password) {
+    if (!user) {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      res.status(401).json({ error: 'Invalid email or password' });
+      return;
+    }
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: '7d' }
+    );
+
     res.json({
+      token,
       id: user.id,
       email: user.email,
       name: user.name,

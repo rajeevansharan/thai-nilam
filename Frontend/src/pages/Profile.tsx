@@ -13,7 +13,7 @@ import {
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import IssueCard from "../components/IssueCard";
-import PDFReader from "../components/PDFReader";
+
 import { getFavorites, toggleFavorite } from "../services/issueService";
 import { getImageUrl } from "../config/api";
 import type { User as UserType, Issue } from "../types";
@@ -23,18 +23,21 @@ interface ProfileProps {
   user?: UserType | null;
   onLogout?: () => void;
   onUnlock?: (issue: Issue) => void;
+  onRead?: (issue: Issue) => void;
 }
+
 
 const Profile: React.FC<ProfileProps> = ({
   onNavigate,
   user,
   onLogout,
   onUnlock,
+  onRead,
 }) => {
   const [activeTab, setActiveTab] = useState<"account" | "saved">("account");
   const [savedIssues, setSavedIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(false);
-  const [readerIssue, setReaderIssue] = useState<Issue | null>(null);
+
 
   useEffect(() => {
     if (activeTab === "saved" && user?.id) {
@@ -72,12 +75,10 @@ const Profile: React.FC<ProfileProps> = ({
     }
   };
 
-  const handleRead = (issue: Issue) => {
-    const fullIssue = savedIssues.find(i => String(i.id) === String(issue.id));
-    if (fullIssue) {
-      setReaderIssue(fullIssue);
-    }
+   const handleRead = (issue: Issue) => {
+    onRead?.(issue);
   };
+
 
   // Removed local getImageUrl helper
 
@@ -320,13 +321,7 @@ const Profile: React.FC<ProfileProps> = ({
         </div>
       </main>
 
-      {readerIssue && (
-        <PDFReader 
-          onClose={() => setReaderIssue(null)}
-          pdfUrl={readerIssue.pdfUrl}
-          issueTitle={readerIssue.title}
-        />
-      )}
+
 
       <Footer />
     </div>

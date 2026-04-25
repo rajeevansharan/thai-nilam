@@ -13,12 +13,14 @@ interface HomeProps {
   onNavigate?: (page: string) => void;
   user?: User | null;
   onUnlock?: (issue: Issue) => void;
+  onRead?: (issue: Issue) => void;
 }
 
-const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
+
+const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock, onRead }) => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
-  const [readerIssue, setReaderIssue] = useState<Issue | null>(null);
+
 
   useEffect(() => {
     const fetchRecent = async () => {
@@ -78,12 +80,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
     }
   };
 
-  const handleRead = (issue: Issue) => {
-    const fullIssue = issues.find(i => String(i.id) === String(issue.id));
-    if (fullIssue) {
-      setReaderIssue(fullIssue);
-    }
+   const handleRead = (issue: Issue) => {
+    onRead?.(issue);
   };
+
 
   // Removed local getImageUrl in favor of the imported one
 
@@ -149,13 +149,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, user, onUnlock }) => {
         </section>
       </main>
 
-      {readerIssue && (
-        <PDFReader 
-          onClose={() => setReaderIssue(null)}
-          pdfUrl={readerIssue?.pdfUrl || ""}
-          issueTitle={readerIssue?.title || ""}
-        />
-      )}
+
 
       <Footer />
     </div>

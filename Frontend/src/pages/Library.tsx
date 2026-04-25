@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import IssueCard from "../components/IssueCard";
-import PDFReader from "../components/PDFReader";
+
 import { Filter, ChevronDown, Loader2 } from "lucide-react";
 import { getAllIssues, toggleFavorite } from "../services/issueService";
 import { getImageUrl } from "../config/api";
@@ -12,9 +12,11 @@ interface LibraryProps {
   onNavigate?: (page: string) => void;
   user?: User | null;
   onUnlock?: (issue: Issue) => void;
+  onRead?: (issue: Issue) => void;
 }
 
-const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
+
+const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock, onRead }) => {
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString("en-US", { month: "long" });
   const currentYear = currentDate.getFullYear().toString();
@@ -23,7 +25,6 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
-  const [readerIssue, setReaderIssue] = useState<Issue | null>(null);
 
   const months = [
     "All",
@@ -96,15 +97,10 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
     }
   };
 
-  const handleRead = (issue: Issue) => {
-    // Robust finding using string comparison to avoid number vs string ID issues
-    const fullIssue = issues.find(i => String(i.id) === String(issue.id));
-    if (fullIssue) {
-      setReaderIssue(fullIssue);
-    } else {
-      console.warn("Issue not found in library list:", issue.id);
-    }
+   const handleRead = (issue: Issue) => {
+    onRead?.(issue);
   };
+
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -198,13 +194,7 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock }) => {
         </div>
       </main>
 
-      {readerIssue && (
-        <PDFReader 
-          onClose={() => setReaderIssue(null)}
-          pdfUrl={readerIssue.pdfUrl}
-          issueTitle={readerIssue.title}
-        />
-      )}
+
 
       <Footer />
     </div>
