@@ -3,7 +3,6 @@ import Header from "../components/Header";
 import Hero from "../components/Hero";
 import IssueCard from "../components/IssueCard";
 import Footer from "../components/Footer";
-import PDFReader from "../components/PDFReader";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { toggleFavorite } from "../services/issueService";
 import { API_URL, getImageUrl } from "../config/api";
