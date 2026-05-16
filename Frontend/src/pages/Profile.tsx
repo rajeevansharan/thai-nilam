@@ -75,11 +75,6 @@ const Profile: React.FC<ProfileProps> = ({
     }
   };
 
-   const handleRead = (issue: Issue) => {
-    onRead?.(issue);
-  };
-
-
   // Removed local getImageUrl helper
 
   return (
@@ -307,8 +302,8 @@ const Profile: React.FC<ProfileProps> = ({
                           }
                           isFavorite={true}
                           onToggleFavorite={handleToggleFavorite}
-                          onUnlock={onUnlock}
-                          onRead={handleRead}
+                          onUnlock={() => onUnlock?.(issue)}
+                          onRead={() => onRead?.(issue)}
                           contentImages={issue.contentImages}
                         />
                       </div>

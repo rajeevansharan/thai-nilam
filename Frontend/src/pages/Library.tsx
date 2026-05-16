@@ -97,11 +97,6 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock, onRead })
     }
   };
 
-   const handleRead = (issue: Issue) => {
-    onRead?.(issue);
-  };
-
-
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <Header activePage="library" onNavigate={onNavigate} />
@@ -184,8 +179,8 @@ const Library: React.FC<LibraryProps> = ({ onNavigate, user, onUnlock, onRead })
                 isPurchased={issue.isPurchased}
                 isUnlocked={issue.isPurchased || user?.role === "ADMIN"}
                 isFavorite={issue.isFavorite}
-                onUnlock={onUnlock}
-                onRead={handleRead}
+                onUnlock={() => onUnlock?.(issue)}
+                onRead={() => onRead?.(issue)}
                 onToggleFavorite={handleToggleFavorite}
                 contentImages={issue.contentImages}
               />
