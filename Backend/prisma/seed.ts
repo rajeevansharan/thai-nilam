@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 
+import bcrypt from 'bcrypt';
+
 const prisma = new PrismaClient();
+const SALT_ROUNDS = 12;
 
 async function main() {
   console.log(`Start seeding ...`);
@@ -11,6 +14,8 @@ async function main() {
   await prisma.issue.deleteMany();
   await prisma.user.deleteMany();
 
+  const hashedPassword = await bcrypt.hash('test', SALT_ROUNDS);
+
   // Create Users
   const user1 = await prisma.user.upsert({
     where: { email: 'admin@gmail.com' },
@@ -18,7 +23,7 @@ async function main() {
     create: {
       email: 'admin@gmail.com',
       name: 'Admin User',
-      password: 'test', // In a real app, hash this!
+      password: hashedPassword,
       role: 'ADMIN',
       isPremium: true,
     },
@@ -30,7 +35,7 @@ async function main() {
     create: {
       email: 'user@gmail.com',
       name: 'Regular User',
-      password: 'test', // In a real app, hash this!
+      password: hashedPassword,
       role: 'USER',
       isPremium: false,
     },

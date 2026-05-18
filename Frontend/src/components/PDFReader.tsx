@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   X,
-  ChevronLeft,
-  ChevronRight,
   Maximize,
   Minus,
   Plus,
@@ -29,11 +27,13 @@ const PDFReader: React.FC<PDFReaderProps> = ({
   onClose,
 }) => {
   const [numPages, setNumPages] = useState<number | null>(null);
-  const [pageNumber, setPageNumber] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1.0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setLoadError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Body scroll lock
   useEffect(() => {
@@ -58,8 +58,41 @@ const PDFReader: React.FC<PDFReaderProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // IntersectionObserver to track which page is currently visible
+  useEffect(() => {
+    if (!numPages || !scrollContainerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let maxRatio = 0;
+        let visiblePage = currentPage;
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            const pageNum = Number(entry.target.getAttribute('data-page'));
+            if (pageNum) visiblePage = pageNum;
+          }
+        });
+        if (maxRatio > 0) {
+          setCurrentPage(visiblePage);
+        }
+      },
+      {
+        root: scrollContainerRef.current,
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+      }
+    );
+
+    pageRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, [numPages, currentPage]);
+
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
+    pageRefs.current = new Array(numPages).fill(null);
     setIsLoading(false);
     setLoadError(null);
   }
@@ -79,8 +112,6 @@ const PDFReader: React.FC<PDFReaderProps> = ({
     return `${API_BASE_URL}/${cleanPath}`;
   };
 
-  const nextPage = () => setPageNumber((prev) => Math.min(numPages || prev, prev + 1));
-  const prevPage = () => setPageNumber((prev) => Math.max(1, prev - 1));
   const zoomIn = () => setScale((prev) => Math.min(3, prev + 0.2));
   const zoomOut = () => setScale((prev) => Math.max(0.5, prev - 0.2));
 
@@ -95,6 +126,10 @@ const PDFReader: React.FC<PDFReaderProps> = ({
     }
   };
 
+  const setPageRef = useCallback((el: HTMLDivElement | null, index: number) => {
+    pageRefs.current[index] = el;
+  }, []);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -104,9 +139,12 @@ const PDFReader: React.FC<PDFReaderProps> = ({
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] bg-[#0F172A] w-screen h-[100dvh] overflow-hidden select-none"
       >
-        {/* Layer 1: PDF Document (Scrollable) */}
-        <div className="absolute inset-0 overflow-auto pt-[100px] pb-[180px] z-10 custom-scrollbar">
-          <div className="flex justify-center min-h-full items-start p-4">
+        {/* Layer 1: PDF Document (Continuous Scroll) */}
+        <div 
+          ref={scrollContainerRef}
+          className="absolute inset-0 overflow-auto pt-[100px] pb-[120px] z-10 custom-scrollbar"
+        >
+          <div className="flex flex-col items-center gap-4 p-4">
             {error ? (
               <div className="max-w-md w-full bg-white/5 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 text-center animate-in zoom-in-95 duration-500">
                 <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -126,22 +164,29 @@ const PDFReader: React.FC<PDFReaderProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="shadow-2xl shadow-black/50 border border-white/5 bg-white">
-                <Document
-                  file={getFullPdfUrl(pdfUrl)}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                  onLoadError={onDocumentLoadError}
-                  loading={<Loader2 className="w-8 h-8 animate-spin text-[#d4a017]" />}
-                >
-                  <Page
-                    pageNumber={pageNumber}
-                    scale={scale}
-                    renderAnnotationLayer={false}
-                    renderTextLayer={false}
-                    className="pdf-page-container"
-                  />
-                </Document>
-              </div>
+              <Document
+                file={getFullPdfUrl(pdfUrl)}
+                onLoadSuccess={onDocumentLoadSuccess}
+                onLoadError={onDocumentLoadError}
+                loading={<Loader2 className="w-8 h-8 animate-spin text-[#d4a017]" />}
+              >
+                {numPages && Array.from({ length: numPages }, (_, i) => (
+                  <div
+                    key={`page-${i + 1}`}
+                    ref={(el) => setPageRef(el, i)}
+                    data-page={i + 1}
+                    className="shadow-2xl shadow-black/50 border border-white/5 bg-white mb-4"
+                  >
+                    <Page
+                      pageNumber={i + 1}
+                      scale={scale}
+                      renderAnnotationLayer={false}
+                      renderTextLayer={false}
+                      className="pdf-page-container"
+                    />
+                  </div>
+                ))}
+              </Document>
             )}
           </div>
         </div>
@@ -181,20 +226,12 @@ const PDFReader: React.FC<PDFReaderProps> = ({
             {/* Page Indicator */}
             <div className="bg-white/10 backdrop-blur-xl px-4 py-1.5 rounded-full border border-white/10 shadow-lg">
               <p className="text-white font-bold text-[11px] md:text-xs uppercase tracking-[0.2em]">
-                Page {pageNumber} <span className="text-white/40 mx-1.5">/</span> {numPages || "..."}
+                Page {currentPage} <span className="text-white/40 mx-1.5">/</span> {numPages || "..."}
               </p>
             </div>
 
             {/* Toolbar Buttons */}
             <div className="flex items-center justify-center gap-2 sm:gap-3 px-4 w-full">
-              <button
-                onClick={prevPage}
-                disabled={pageNumber <= 1}
-                className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-2xl border border-white/10 transition-all disabled:opacity-20 active:scale-95 touch-manipulation shadow-lg"
-              >
-                <ChevronLeft className="w-6 h-6 text-white" />
-              </button>
-
               <button
                 onClick={zoomOut}
                 className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-2xl border border-white/10 transition-all active:scale-95 touch-manipulation shadow-lg"
@@ -214,14 +251,6 @@ const PDFReader: React.FC<PDFReaderProps> = ({
                 className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-2xl border border-white/10 transition-all active:scale-95 touch-manipulation shadow-lg"
               >
                 <Maximize className="w-6 h-6 text-white" />
-              </button>
-
-              <button
-                onClick={nextPage}
-                disabled={!!numPages && pageNumber >= numPages}
-                className="p-3 bg-[#d4a017]/20 hover:bg-[#d4a017]/40 backdrop-blur-xl rounded-2xl border border-[#d4a017]/30 transition-all disabled:opacity-20 active:scale-95 touch-manipulation shadow-lg"
-              >
-                <ChevronRight className="w-6 h-6 text-[#d4a017]" />
               </button>
             </div>
           </div>

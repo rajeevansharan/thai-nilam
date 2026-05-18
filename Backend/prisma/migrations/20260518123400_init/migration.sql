@@ -48,6 +48,7 @@ CREATE TABLE "Purchase" (
     "paidAt" TIMESTAMP(3),
     "amount" DOUBLE PRECISION NOT NULL,
     "status" "PurchaseStatus" NOT NULL DEFAULT 'pending',
+    "receiptUrl" TEXT,
 
     CONSTRAINT "Purchase_pkey" PRIMARY KEY ("id")
 );
