@@ -66,7 +66,7 @@ const IssueCard: React.FC<IssueCardProps> = ({
         )}
 
         {/* Access Badge */}
-        {(isPurchased || isUnlocked) ? (
+        {(isPurchased && isUnlocked) ? (
           <div className="absolute top-3 left-3 px-2 py-1 bg-[#d4a017] text-white text-[8px] font-bold uppercase tracking-widest rounded shadow-sm z-10">
             Unlocked
           </div>
@@ -101,7 +101,7 @@ const IssueCard: React.FC<IssueCardProps> = ({
               : "bg-[#d4a017] text-white hover:bg-[#b88a14]"}
           `}
         >
-          {isPurchased || isUnlocked ? (
+          {isPurchased && isUnlocked ? (
             <>
               <BookOpen className="w-3.5 h-3.5" />
               Read Now
