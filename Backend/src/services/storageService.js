@@ -1,38 +1,35 @@
-const cloudinary = require("cloudinary").v2;
 const path = require("path");
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const fs = require("fs");
 
 /**
- * Uploads a file buffer to Cloudinary and returns the secure URL.
+ * Uploads a file buffer to local VPS storage and returns the relative URL.
  * 
  * @param file The multer file object containing the buffer
- * @param folder The folder in the bucket (e.g., "images", "pdfs")
+ * @param folder The folder in the storage (e.g., "images", "pdfs")
  */
 const uploadFile = async (file, folder) => {
   if (!file || !file.buffer) return "";
-  
-  return new Promise((resolve, reject) => {
-    const resourceType = file.mimetype === "application/pdf" ? "raw" : "image";
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: folder,
-        resource_type: resourceType,
-      },
-      (error, result) => {
-        if (error) {
-          console.error("Cloudinary Error:", error);
-          return reject(error);
-        }
-        resolve(result.secure_url);
-      }
-    );
-    uploadStream.end(file.buffer);
-  });
+
+  try {
+    const uploadDir = path.join(__dirname, '../../uploads', folder);
+
+    // Ensure the directory exists
+    await fs.promises.mkdir(uploadDir, { recursive: true });
+
+    // Generate a unique filename using timestamp and a random number
+    const ext = path.extname(file.originalname || '');
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
+    const filePath = path.join(uploadDir, filename);
+
+    // Write the file to disk
+    await fs.promises.writeFile(filePath, file.buffer);
+
+    // Return the relative URL (e.g. /uploads/images/filename.jpg)
+    return `/uploads/${folder}/${filename}`;
+  } catch (error) {
+    console.error("Local Storage Error:", error);
+    throw error;
+  }
 };
 
 module.exports = {

@@ -11,6 +11,7 @@ import Payment from "./pages/Payment";
 import PDFReader from "./components/PDFReader";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 
 
@@ -29,7 +30,7 @@ function App() {
     }
     return null;
   });
-   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [readerIssue, setReaderIssue] = useState<Issue | null>(() => {
     const saved = localStorage.getItem("current_reading_issue");
     if (saved) {
@@ -53,7 +54,7 @@ function App() {
     };
     setUser(normalizedUser);
     localStorage.setItem("thai_nilam_user", JSON.stringify(normalizedUser));
-    
+
     if (normalizedUser.role === "ADMIN") {
       navigate("/admin");
     } else {
@@ -66,7 +67,7 @@ function App() {
     navigate("/payment");
   };
 
-   const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem("thai_nilam_user");
     setUser(null);
     navigate("/");
@@ -90,22 +91,52 @@ function App() {
   };
 
   return (
-     <div className="app-container">
+    <div className="app-container">
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route path="/home" element={<Home onNavigate={onNavigate} user={user} onUnlock={navigateToPayment} onRead={handleRead} />} />
-        <Route path="/library" element={<Library onNavigate={onNavigate} user={user} onUnlock={navigateToPayment} onRead={handleRead} />} />
-        <Route path="/profile" element={<Profile onNavigate={onNavigate} user={user} onLogout={handleLogout} onUnlock={navigateToPayment} onRead={handleRead} />} />
-        <Route path="/admin-profile" element={<AdminProfile onNavigate={onNavigate} user={user} onLogout={handleLogout} />} />
-        <Route path="/admin" element={<Admin onNavigate={onNavigate} />} />
-        <Route path="/payment" element={<Payment onNavigate={onNavigate} issue={selectedIssue} user={user} />} />
+
+        {/* Protected User Routes */}
+        <Route path="/home" element={
+          <ProtectedRoute user={user}>
+            <Home onNavigate={onNavigate} user={user} onUnlock={navigateToPayment} onRead={handleRead} />
+          </ProtectedRoute>
+        } />
+        <Route path="/library" element={
+          <ProtectedRoute user={user}>
+            <Library onNavigate={onNavigate} user={user} onUnlock={navigateToPayment} onRead={handleRead} />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute user={user}>
+            <Profile onNavigate={onNavigate} user={user} onLogout={handleLogout} onUnlock={navigateToPayment} onRead={handleRead} />
+          </ProtectedRoute>
+        } />
+        <Route path="/payment" element={
+          <ProtectedRoute user={user}>
+            <Payment onNavigate={onNavigate} issue={selectedIssue} user={user} />
+          </ProtectedRoute>
+        } />
+
+        {/* Protected Admin Routes */}
+        <Route path="/admin-profile" element={
+          <ProtectedRoute user={user} requireAdmin>
+            <AdminProfile onNavigate={onNavigate} user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute user={user} requireAdmin>
+            <Admin onNavigate={onNavigate} />
+          </ProtectedRoute>
+        } />
+
+        {/* Public Routes */}
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<TermsConditions />} />
       </Routes>
 
       {readerIssue && (
-        <PDFReader 
+        <PDFReader
           onClose={closeReader}
           pdfUrl={readerIssue.pdfUrl}
           issueTitle={readerIssue.title}

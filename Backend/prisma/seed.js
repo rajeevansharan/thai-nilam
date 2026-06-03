@@ -50,8 +50,8 @@ async function main() {
       description: 'The first issue of the new year.',
       month: 'January',
       year: '2026',
-      pdfUrl: 'https://example.com/pdf/jan2026.pdf',
-      imageUrl: 'https://example.com/img/jan2026.jpg',
+      pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf',
+      imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80',
       price: 500.00
     }
   });
@@ -62,8 +62,8 @@ async function main() {
       description: 'Insights into technology trends.',
       month: 'February',
       year: '2026',
-      pdfUrl: 'https://example.com/pdf/feb2026.pdf',
-      imageUrl: 'https://example.com/img/feb2026.jpg',
+      pdfUrl: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf',
+      imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80',
       price: 750.00
     }
   });
