@@ -1,189 +1,116 @@
-"use strict";
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 
-var _client = require("@prisma/client");
-var _bcrypt = _interopRequireDefault(require("bcrypt"));
-function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
-function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
-function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
-function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
-var prisma = new _client.PrismaClient();
-var SALT_ROUNDS = 12;
-function main() {
-  return _main.apply(this, arguments);
-}
-function _main() {
-  _main = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
-    var hashedPassword, user1, user2, issue1, issue2, purchase1, purchase2, favorite1;
-    return _regenerator().w(function (_context3) {
-      while (1) switch (_context3.n) {
-        case 0:
-          console.log("Start seeding ...");
+const prisma = new PrismaClient();
+const SALT_ROUNDS = 12;
 
-          // Cleanup existing data
-          _context3.n = 1;
-          return prisma.purchase.deleteMany();
-        case 1:
-          _context3.n = 2;
-          return prisma.favorite.deleteMany();
-        case 2:
-          _context3.n = 3;
-          return prisma.issue.deleteMany();
-        case 3:
-          _context3.n = 4;
-          return prisma.user.deleteMany();
-        case 4:
-          _context3.n = 5;
-          return _bcrypt["default"].hash('test', SALT_ROUNDS);
-        case 5:
-          hashedPassword = _context3.v;
-          _context3.n = 6;
-          return prisma.user.upsert({
-            where: {
-              email: 'admin@gmail.com'
-            },
-            update: {},
-            create: {
-              email: 'admin@gmail.com',
-              name: 'Admin User',
-              password: hashedPassword,
-              role: 'ADMIN',
-              isPremium: true
-            }
-          });
-        case 6:
-          user1 = _context3.v;
-          _context3.n = 7;
-          return prisma.user.upsert({
-            where: {
-              email: 'user@gmail.com'
-            },
-            update: {},
-            create: {
-              email: 'user@gmail.com',
-              name: 'Regular User',
-              password: hashedPassword,
-              role: 'USER',
-              isPremium: false
-            }
-          });
-        case 7:
-          user2 = _context3.v;
-          console.log({
-            user1: user1,
-            user2: user2
-          });
+async function main() {
+  console.log("Start seeding ...");
 
-          // Create Issues
-          _context3.n = 8;
-          return prisma.issue.create({
-            data: {
-              title: 'January Issue 2026',
-              description: 'The first issue of the new year.',
-              month: 'January',
-              year: '2026',
-              pdfUrl: 'https://example.com/pdf/jan2026.pdf',
-              imageUrl: 'https://example.com/img/jan2026.jpg',
-              price: 500.00
-            }
-          });
-        case 8:
-          issue1 = _context3.v;
-          _context3.n = 9;
-          return prisma.issue.create({
-            data: {
-              title: 'February Issue 2026',
-              description: 'Insights into technology trends.',
-              month: 'February',
-              year: '2026',
-              pdfUrl: 'https://example.com/pdf/feb2026.pdf',
-              imageUrl: 'https://example.com/img/feb2026.jpg',
-              price: 750.00
-            }
-          });
-        case 9:
-          issue2 = _context3.v;
-          console.log({
-            issue1: issue1,
-            issue2: issue2
-          });
+  // Cleanup existing data (in correct order due to foreign keys)
+  await prisma.purchase.deleteMany();
+  await prisma.favorite.deleteMany();
+  await prisma.issue.deleteMany();
+  await prisma.user.deleteMany();
 
-          // Create Purchases
-          _context3.n = 10;
-          return prisma.purchase.create({
-            data: {
-              userId: user2.id,
-              magazineIssueId: issue1.id,
-              amount: 4.99,
-              status: 'paid',
-              paidAt: new Date()
-            }
-          });
-        case 10:
-          purchase1 = _context3.v;
-          _context3.n = 11;
-          return prisma.purchase.create({
-            data: {
-              userId: user2.id,
-              magazineIssueId: issue2.id,
-              amount: 4.99,
-              status: 'pending'
-            }
-          });
-        case 11:
-          purchase2 = _context3.v;
-          console.log({
-            purchase1: purchase1,
-            purchase2: purchase2
-          });
+  // Hash password
+  const hashedPassword = await bcrypt.hash('test', SALT_ROUNDS);
 
-          // Create Favorites
-          _context3.n = 12;
-          return prisma.favorite.create({
-            data: {
-              userId: user2.id,
-              magazineIssueId: issue1.id
-            }
-          });
-        case 12:
-          favorite1 = _context3.v;
-          console.log({
-            favorite1: favorite1
-          });
-          console.log("Seeding finished.");
-        case 13:
-          return _context3.a(2);
-      }
-    }, _callee3);
-  }));
-  return _main.apply(this, arguments);
-}
-main().then(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-  return _regenerator().w(function (_context) {
-    while (1) switch (_context.n) {
-      case 0:
-        _context.n = 1;
-        return prisma.$disconnect();
-      case 1:
-        return _context.a(2);
+  // Create users
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@gmail.com' },
+    update: {},
+    create: {
+      email: 'admin@gmail.com',
+      name: 'Admin User',
+      password: hashedPassword,
+      role: 'ADMIN',
+      isPremium: true
     }
-  }, _callee);
-})))["catch"](/*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(e) {
-    return _regenerator().w(function (_context2) {
-      while (1) switch (_context2.n) {
-        case 0:
-          console.error(e);
-          _context2.n = 1;
-          return prisma.$disconnect();
-        case 1:
-          process.exit(1);
-        case 2:
-          return _context2.a(2);
-      }
-    }, _callee2);
-  }));
-  return function (_x) {
-    return _ref2.apply(this, arguments);
-  };
-}());
+  });
+
+  const regularUser = await prisma.user.upsert({
+    where: { email: 'user@gmail.com' },
+    update: {},
+    create: {
+      email: 'user@gmail.com',
+      name: 'Regular User',
+      password: hashedPassword,
+      role: 'USER',
+      isPremium: false
+    }
+  });
+
+  console.log({ admin, regularUser });
+
+  // Create issues
+  const janIssue = await prisma.issue.create({
+    data: {
+      title: 'January Issue 2026',
+      description: 'The first issue of the new year.',
+      month: 'January',
+      year: '2026',
+      pdfUrl: 'https://example.com/pdf/jan2026.pdf',
+      imageUrl: 'https://example.com/img/jan2026.jpg',
+      price: 500.00
+    }
+  });
+
+  const febIssue = await prisma.issue.create({
+    data: {
+      title: 'February Issue 2026',
+      description: 'Insights into technology trends.',
+      month: 'February',
+      year: '2026',
+      pdfUrl: 'https://example.com/pdf/feb2026.pdf',
+      imageUrl: 'https://example.com/img/feb2026.jpg',
+      price: 750.00
+    }
+  });
+
+  console.log({ janIssue, febIssue });
+
+  // Create purchases
+  const purchase1 = await prisma.purchase.create({
+    data: {
+      userId: regularUser.id,
+      magazineIssueId: janIssue.id,
+      amount: 4.99,
+      status: 'paid',
+      paidAt: new Date()
+    }
+  });
+
+  const purchase2 = await prisma.purchase.create({
+    data: {
+      userId: regularUser.id,
+      magazineIssueId: febIssue.id,
+      amount: 4.99,
+      status: 'pending'
+    }
+  });
+
+  console.log({ purchase1, purchase2 });
+
+  // Create favorite
+  const favorite = await prisma.favorite.create({
+    data: {
+      userId: regularUser.id,
+      magazineIssueId: janIssue.id
+    }
+  });
+
+  console.log({ favorite });
+  console.log("Seeding finished.");
+}
+
+// Run the seed function
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
