@@ -126,11 +126,11 @@ const Landing = () => {
           </div>
           
           <div className="flex space-x-6">
-            <Link to="/privacy-policy" state={{ fromLanding: true }} className="text-[10px] md:text-sm text-muted-foreground hover:text-accent transition-colors font-bold uppercase tracking-widest">Privacy Policy</Link>
-            <Link to="/terms-conditions" state={{ fromLanding: true }} className="text-[10px] md:text-sm text-muted-foreground hover:text-accent transition-colors font-bold uppercase tracking-widest">Terms of Service</Link>
+            <Link to="/privacy-policy" state={{ fromLanding: true }} className="text-xs text-muted-foreground hover:text-accent transition-colors font-bold uppercase tracking-widest">Privacy Policy</Link>
+            <Link to="/terms-conditions" state={{ fromLanding: true }} className="text-xs text-muted-foreground hover:text-accent transition-colors font-bold uppercase tracking-widest">Terms of Service</Link>
           </div>
 
-          <p className="text-[10px] md:text-sm text-muted-foreground text-center">© 2026 Thai Nilam பதிப்பகம். All rights reserved.</p>
+          <p className="text-xs text-muted-foreground text-center">© 2026 Thai Nilam பதிப்பகம். All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -14,12 +14,6 @@ const Footer: React.FC = () => {
           </p>
         </div>
 
-        {/* Navigation Section */}
-        <nav className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
-          <Link to="/home" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-[#d4a017] transition-all hover:scale-105 active:scale-95">Home</Link>
-          <Link to="/library" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-[#d4a017] transition-all hover:scale-105 active:scale-95">Library</Link>
-          <Link to="/profile" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-[#d4a017] transition-all hover:scale-105 active:scale-95">Account</Link>
-        </nav>
 
         {/* Legal & Copyright Section */}
         <div className="flex flex-col items-center md:items-end text-center md:text-right">
